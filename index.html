@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ふんわり勉強タイマー & ミュージックプレイヤー</title>
-
+    
     <link rel="apple-touch-icon" href="IMG_1973.PNG">
-
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -44,6 +44,25 @@
         /* 休憩中の背景クラス */
         body.rest-mode-bg {
             background-color: var(--bg-rest-color) !important;
+        }
+
+        /* 画面上部の共通SP表示 */
+        .global-sp-counter {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: #ffffff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px dashed var(--main-pink);
+            box-shadow: 0 4px 10px rgba(243, 224, 211, 0.2);
+        }
+        .global-sp-counter span {
+            font-family: var(--font-number);
+            font-weight: bold;
+            color: #e29578;
         }
 
         /* 音楽コントローラーコンテナ */
@@ -179,12 +198,12 @@
         }
         .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
         h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 400; letter-spacing: 0.05em; }
-        h2 { font-size: 1.5rem; margin-bottom: 25px; font-weight: 300; }
+        h2 { font-size: 1.5rem; margin-bottom: 15px; font-weight: 300; }
         p { font-size: 1rem; margin-bottom: 20px; color: #8a736a; }
 
         .record-box {
             background-color: #ffffff; border: 1px dashed var(--main-pink);
-            padding: 12px 25px; border-radius: 15px; margin-bottom: 30px; font-size: 0.95rem; text-align: center;
+            padding: 12px 25px; border-radius: 15px; margin-bottom: 25px; font-size: 0.95rem; text-align: center;
             box-shadow: 0 4px 10px rgba(243, 224, 211, 0.2);
         }
         .record-box span { font-family: var(--font-number); font-size: 1.4rem; font-weight: bold; color: #e29578; margin: 0 4px; }
@@ -197,7 +216,7 @@
             box-shadow: 0 4px 15px rgba(243, 224, 211, 0.4); transition: all 0.3s ease;
         }
         button:hover { background-color: var(--main-pink); color: white; border-color: var(--main-pink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 196, 171, 0.6); }
-        button.secondary { background-color: transparent; border: 1px solid #d3c4be; box-shadow: none; margin-top: 20px; font-size: 0.95rem; padding: 10px 20px; }
+        button.secondary { background-color: transparent; border: 1px solid #d3c4be; box-shadow: none; margin-top: 15px; font-size: 0.95rem; padding: 10px 20px; }
         button.secondary:hover { background-color: #d3c4be; color: white; }
 
         .spinner-container {
@@ -220,12 +239,113 @@
         .cute-alarm-bg { background-color: #fff0f3 !important; }
         .cute-poyo { animation: soft-bounce 0.8s infinite ease-in-out; }
         .alarm-overlay { display: none; position: absolute; top: 12%; background: #ffb5a7; color: white; padding: 12px 28px; border-radius: 25px; font-weight: bold; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(251, 181, 167, 0.4); letter-spacing: 0.05em; }
+
+        /* 🛒 ショップモード用スタイル */
+        .shop-layout {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 640px;
+            height: 80vh;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(109, 89, 82, 0.08);
+            border: 1px solid var(--sub-cream);
+        }
+        .avatar-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: var(--bg-color);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            min-height: 110px;
+        }
+        .avatar-graphics {
+            font-family: monospace;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+            transition: transform 0.2s ease;
+        }
+        .avatar-balloon {
+            font-size: 0.85rem;
+            color: #8a736a;
+            height: 20px;
+            text-align: center;
+        }
+        .shop-shelves {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .shelf-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            background: var(--sub-cream);
+            border-radius: 6px;
+            margin: 12px 0 8px 0;
+        }
+        .shelf-title:first-child { margin-top: 0; }
+        .items-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .shop-item-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #eee;
+            padding: 10px 14px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        .shop-item-card:hover {
+            border-color: var(--main-pink);
+            background: var(--bg-color);
+        }
+        .item-info-left {
+            display: flex;
+            flex-direction: column;
+        }
+        .item-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .item-price {
+            font-size: 0.8rem;
+            color: #e29578;
+            font-family: var(--font-number);
+            font-weight: bold;
+            margin-top: 2px;
+        }
+        .buy-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 15px;
+            box-shadow: none;
+            border: 1px solid var(--main-pink);
+        }
+        .buy-btn:hover {
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
 
+    <div class="global-sp-counter">所持: <span id="global-sp-display">0</span> SP</div>
+
     <audio id="bgm-player"></audio>
-    <audio id="alarm-player" src="huurin.mp3"></audio> <div class="music-widget">
+    <audio id="alarm-player" src="huurin.mp3"></audio>
+
+    <div class="music-widget">
         <div id="bgm-btn" class="bgm-trigger" onclick="togglePlayerPanel()">
             <span id="bgm-icon">BGM</span>
             <span id="bgm-status-text">Menu</span>
@@ -257,6 +377,7 @@
         <div class="btn-container">
             <button onclick="changeScreen('screen-class-select')">授業記録モード</button>
             <button onclick="changeScreen('screen-self-select')">自習モード</button>
+            <button onclick="openShopScreen()" style="border-color: #bdedf2; background-color: #f4fcfd;">ショップモード</button>
         </div>
     </div>
 
@@ -308,6 +429,25 @@
         </div>
     </div>
 
+    <div id="screen-shop" class="screen">
+        <h2>すたでぃショップ</h2>
+        <div class="shop-layout">
+            <div class="avatar-area">
+                <div id="avatar-body" class="avatar-graphics">(o^^o)</div>
+                <div id="avatar-speech" class="avatar-balloon">なにか食べたいな…！</div>
+            </div>
+            
+            <div class="shop-shelves">
+                <div class="shelf-title">のみもの</div>
+                <div id="shop-drinks-list" class="items-grid"></div>
+                
+                <div class="shelf-title">たべもの</div>
+                <div id="shop-foods-list" class="items-grid"></div>
+            </div>
+        </div>
+        <button class="secondary" onclick="changeScreen('screen-main')">メインにもどる</button>
+    </div>
+
     <script>
         let timerInterval = null;
         let totalSeconds = 0;
@@ -317,14 +457,37 @@
         let pomodoroCycle = 1;
         let currentCustomMinutes = 10;
 
-        // ミュージックプレイヤー関連データ（曲名表示を日本語に変更）
+        // すたでぃポイント (SP) 管理
+        let currentSP = parseFloat(localStorage.getItem('study_sp') || '0');
+
+        // ショップの商品データ
+        const shopItems = {
+            drinks: [
+                { name: "げんきドリンク", price: 150 },
+                { name: "おいしいコーヒー", price: 300 },
+                { name: "やさしいミルクティー", price: 350 },
+                { name: "しんさくフラペチーノ", price: 600 },
+                { name: "高級抹茶茶碗", price: 1000 }
+            ],
+            foods: [
+                { name: "ふがし", price: 100 },
+                { name: "クッキー", price: 300 },
+                { name: "カヌレ", price: 250 },
+                { name: "マドレーヌ", price: 350 },
+                { name: "ドーナツ", price: 400 },
+                { name: "生チョコ", price: 600 },
+                { name: "ごうかなケーキ", price: 1000 }
+            ]
+        };
+
+        // ミュージックプレイヤー関連データ
         const tracks = [
             { id: 0, title: "三葉のテーマ", file: "music1.mp3" },
             { id: 1, title: "夢灯籠", file: "music2.mp3" }
         ];
         let currentTrackIndex = 0;
         let isPlaying = false;
-        let repeatMode = 'all'; // 'all' (全曲ループ), 'one' (1曲リピート)
+        let repeatMode = 'all'; 
         let nextTrackTimeout = null;
 
         const bgmPlayer = document.getElementById('bgm-player');
@@ -332,7 +495,9 @@
 
         window.onload = function() {
             displayTodayRecord();
+            updateSPDisplay();
             renderPlaylist();
+            buildShopMenu();
             loadTrack(currentTrackIndex);
             
             bgmPlayer.onended = function() {
@@ -348,6 +513,88 @@
             };
         };
 
+        // SPポイント表示更新
+        function updateSPDisplay() {
+            document.getElementById('global-sp-display').innerText = Math.floor(currentSP);
+            localStorage.setItem('study_sp', currentSP.toString());
+        }
+
+        // ショップの棚を組み立てる
+        function buildShopMenu() {
+            const drinksContainer = document.getElementById('shop-drinks-list');
+            drinksContainer.innerHTML = '';
+            shopItems.drinks.forEach(item => {
+                drinksContainer.appendChild(createItemCard(item));
+            });
+
+            const foodsContainer = document.getElementById('shop-foods-list');
+            foodsContainer.innerHTML = '';
+            shopItems.foods.forEach(item => {
+                foodsContainer.appendChild(createItemCard(item));
+            });
+        }
+
+        function createItemCard(item) {
+            const card = document.createElement('div');
+            card.className = 'shop-item-card';
+            card.innerHTML = `
+                <div class="item-info-left">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-price">${item.price} SP</span>
+                </div>
+                <button class="buy-btn" onclick="buyItem('${item.name}', ${item.price})">かう</button>
+            `;
+            return card;
+        }
+
+        // ショップ画面を開く
+        function openShopScreen() {
+            changeScreen('screen-shop');
+            // アバターを初期状態に戻す
+            document.getElementById('avatar-body').innerText = "(o^^o)";
+            document.getElementById('avatar-speech').innerText = "なにか食べたいな…！";
+        }
+
+        // アイテム購入とアバターリアクション
+        let avatarTimeout = null;
+        function buyItem(name, price) {
+            if (currentSP < price) {
+                alert("SP（すたでぃポイント）が足りません。勉強して貯めましょう！");
+                return;
+            }
+
+            // ポイント消費
+            currentSP -= price;
+            updateSPDisplay();
+
+            // アバターリアクション決定
+            const bodyEl = document.getElementById('avatar-body');
+            const speechEl = document.getElementById('avatar-speech');
+            
+            clearTimeout(avatarTimeout);
+
+            if (price >= 1000) {
+                bodyEl.innerText = "＼(≧▽≦)／";
+                speechEl.innerText = `すごすぎる！高級な ${name} だー！！幸せ！`;
+            } else if (price >= 600) {
+                bodyEl.innerText = " ＼(＠＾▽＾＠)／ ";
+                speechEl.innerText = `わあー！贅沢な ${name} ！！すっごく嬉しい！`;
+            } else if (price >= 300) {
+                bodyEl.innerText = "( *´▽`* )";
+                speechEl.innerText = `おいしい ${name} ありがとう！やる気が出るよ！`;
+            } else {
+                bodyEl.innerText = "(*^o^*)";
+                speechEl.innerText = `${name} もぐもぐ！美味しいよ、ありがとう！`;
+            }
+
+            // 4秒後に元の状態へ戻る
+            avatarTimeout = setTimeout(() => {
+                bodyEl.innerText = "(o^^o)";
+                speechEl.innerText = "次は何をくれるの？";
+            }, 4000);
+        }
+
+        // 🎵 ミュージックプレイヤー関連
         function togglePlayerPanel() {
             const panel = document.getElementById('player-panel');
             panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
@@ -415,7 +662,6 @@
             if (isPlaying) bgmPlayer.play().catch(()=>{});
         }
 
-        // 前の曲
         function prevTrack() {
             clearTimeout(nextTrackTimeout);
             let prevIndex = currentTrackIndex - 1;
@@ -458,11 +704,20 @@
             document.getElementById('today-record-time').innerText = todayMinutes.toFixed(1) + '分';
         }
 
-        function saveStudyTime(seconds) {
+        // タイマー終了時に勉強時間とSPポイントを同時に加算・セーブ
+        function saveStudyTimeAndSP(seconds) {
             if (seconds <= 0) return;
-            const currentTotal = parseFloat(localStorage.getItem('study_today_minutes') || '0');
-            localStorage.setItem('study_today_minutes', currentTotal + (seconds / 60));
+            const minutesEarned = seconds / 60;
+            
+            // 勉強時間を追加
+            const currentTotalMinutes = parseFloat(localStorage.getItem('study_today_minutes') || '0');
+            localStorage.setItem('study_today_minutes', currentTotalMinutes + minutesEarned);
             displayTodayRecord();
+
+            // 勉強時間(分) × 10 のすたでぃポイント(SP)を計算して加算
+            const pointsEarned = minutesEarned * 10;
+            currentSP += pointsEarned;
+            updateSPDisplay();
         }
 
         function adjustMinutes(amount) {
@@ -537,8 +792,11 @@
                         if (currentMode === 'pomodoro-work') {
                             playChimeSound(); 
                             
+                            // 集中が終わったのでこのセッションの勉強時間とSPを一旦確定・加算
+                            saveStudyTimeAndSP(elapsedSecondsInSession);
+                            elapsedSecondsInSession = 0;
+
                             document.body.classList.add('rest-mode-bg'); 
-                            
                             document.getElementById('alarm-banner').innerText = 'おつかれさま！5分休憩してね';
                             document.body.classList.add('cute-alarm-bg');
                             document.getElementById('timer-box').classList.add('cute-poyo');
@@ -556,7 +814,6 @@
                             }, 4000);
                         } else {
                             playChimeSound(); 
-                            
                             document.body.classList.remove('rest-mode-bg'); 
                             
                             pomodoroCycle++;
@@ -613,7 +870,8 @@
 
         function stopTimer() {
             clearInterval(timerInterval); timerInterval = null;
-            saveStudyTime(elapsedSecondsInSession);
+            // 終了時に勉強した秒数に応じてSPと勉強時間を保存
+            saveStudyTimeAndSP(elapsedSecondsInSession);
             elapsedSecondsInSession = 0;
             document.body.classList.remove('rest-mode-bg'); 
             changeScreen('screen-main');
