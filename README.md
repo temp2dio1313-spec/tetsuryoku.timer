@@ -1,1 +1,1 @@
-# tetsuryoku.timer
+# stustu.timer
