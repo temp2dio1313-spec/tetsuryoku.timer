@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ふんわり勉強タイマー & ミュージックプレイヤー</title>
     
+    <!-- Safari ホーム画面追加時のアイコン設定 -->
     <link rel="apple-touch-icon" href="IMG_1973.PNG">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +15,7 @@
     <style>
         :root {
             --bg-color: #fef9f3;
-            --bg-rest-color: #eef7f9; /* 休憩中のおしゃれな薄い水色 */
+            --bg-rest-color: #eef7f9; 
             --main-pink: #fbc4ab;
             --sub-cream: #ffedd8;
             --text-color: #6d5952;
@@ -37,11 +38,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: background-color 0.6s ease, color 0.5s ease;
             position: relative;
         }
 
-        /* 休憩中の背景クラス */
         body.rest-mode-bg {
             background-color: var(--bg-rest-color) !important;
         }
@@ -53,11 +52,12 @@
             left: 20px;
             font-size: 1rem;
             font-weight: 500;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.95);
             padding: 6px 16px;
             border-radius: 20px;
             border: 1px dashed var(--main-pink);
             box-shadow: 0 4px 10px rgba(243, 224, 211, 0.2);
+            z-index: 110;
         }
         .global-sp-counter span {
             font-family: var(--font-number);
@@ -70,19 +70,18 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            z-index: 100;
+            z-index: 120;
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 10px;
         }
 
-        /* メインボタン */
         .bgm-trigger {
             display: flex;
             align-items: center;
             gap: 8px;
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.95);
             border: 2px solid var(--sub-cream);
             padding: 10px 18px;
             border-radius: 25px;
@@ -100,7 +99,6 @@
             border-color: var(--main-pink);
         }
 
-        /* 展開されるプレイヤーパネル */
         .player-panel {
             display: none;
             width: 280px;
@@ -136,28 +134,14 @@
             margin-bottom: 15px;
         }
         .control-btn {
-            background: none;
-            border: none;
-            box-shadow: none;
-            padding: 5px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--text-color);
-            transition: color 0.2s, transform 0.1s;
-            width: auto; height: auto; border-radius: 0;
+            background: none; border: none; box-shadow: none; padding: 5px;
+            font-size: 0.9rem; font-weight: bold; cursor: pointer; color: var(--text-color);
+            transition: color 0.2s, transform 0.1s; width: auto; height: auto; border-radius: 0;
         }
-        .control-btn:hover {
-            background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none;
-        }
-        .control-btn.active {
-            color: #e29578;
-        }
-        .play-pause-btn {
-            font-size: 1.2rem;
-        }
+        .control-btn:hover { background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none; }
+        .control-btn.active { color: #e29578; }
+        .play-pause-btn { font-size: 1.2rem; }
 
-        /* 曲一覧リスト */
         .playlist {
             border-top: 1px dashed var(--sub-cream);
             padding-top: 10px;
@@ -165,27 +149,14 @@
             overflow-y: auto;
         }
         .playlist-title {
-            font-size: 0.75rem;
-            color: #8a736a;
-            margin-bottom: 5px;
-            font-weight: 500;
+            font-size: 0.75rem; color: #8a736a; margin-bottom: 5px; font-weight: 500;
         }
         .track-item {
-            font-size: 0.85rem;
-            padding: 6px 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            transition: background 0.2s;
+            font-size: 0.85rem; padding: 6px 8px; border-radius: 8px;
+            cursor: pointer; display: flex; justify-content: space-between; transition: background 0.2s;
         }
-        .track-item:hover {
-            background-color: var(--bg-color);
-        }
-        .track-item.current {
-            background-color: var(--sub-cream);
-            font-weight: 500;
-        }
+        .track-item:hover { background-color: var(--bg-color); }
+        .track-item.current { background-color: var(--sub-cream); font-weight: 500; }
 
         /* 画面共通スタイル */
         .screen {
@@ -195,11 +166,12 @@
             opacity: 0; pointer-events: none;
             transition: opacity 0.5s ease, transform 0.5s ease;
             transform: scale(0.95); background-color: transparent; padding: 20px;
+            z-index: 10;
         }
         .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
-        h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 400; letter-spacing: 0.05em; }
-        h2 { font-size: 1.5rem; margin-bottom: 15px; font-weight: 300; }
-        p { font-size: 1rem; margin-bottom: 20px; color: #8a736a; }
+        h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 400; letter-spacing: 0.05em; text-align: center; }
+        h2 { font-size: 1.5rem; margin-bottom: 15px; font-weight: 300; text-align: center; }
+        p { font-size: 1rem; margin-bottom: 20px; color: #8a736a; text-align: center; }
 
         .record-box {
             background-color: #ffffff; border: 1px dashed var(--main-pink);
@@ -229,87 +201,116 @@
         .spinner-arrow { background: none; border: none; box-shadow: none; padding: 0; width: 32px; height: 32px; cursor: pointer; color: #bfa397; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
         .spinner-arrow:hover { background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none; }
 
-        .timer-container-box { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .timer-container-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .timer-display { font-family: var(--font-number); font-size: 6rem; font-weight: 400; margin-bottom: 20px; letter-spacing: 2px; }
         .status-badge { background-color: var(--sub-cream); padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 15px; font-weight: 500; }
         .cycle-count { font-size: 1.1rem; margin-bottom: 20px; }
         .cycle-count span { font-family: var(--font-number); font-size: 1.5rem; font-weight: bold; }
 
-        @keyframes soft-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08) translateY(-10px); } }
         .cute-alarm-bg { background-color: #fff0f3 !important; }
-        .cute-poyo { animation: soft-bounce 0.8s infinite ease-in-out; }
         .alarm-overlay { display: none; position: absolute; top: 12%; background: #ffb5a7; color: white; padding: 12px 28px; border-radius: 25px; font-weight: bold; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(251, 181, 167, 0.4); letter-spacing: 0.05em; }
 
-        /* 🛒 ショップモード用スタイル */
+        /* 🛒 ショップモード専用背景・レイアウト */
+        #screen-shop {
+            background-image: url('cafe.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 10px;
+        }
+
+        #screen-shop h2 {
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
         .shop-layout {
             display: flex;
             flex-direction: column;
             width: 100%;
-            max-width: 640px;
-            height: 80vh;
-            background: #ffffff;
+            max-width: 500px;
+            height: 72vh;
+            /* 背景のcafe.pngが見えやすくなるよう、すりガラス風（半透明）の高級感あるホワイトに */
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border-radius: 24px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(109, 89, 82, 0.08);
-            border: 1px solid var(--sub-cream);
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
+
         .avatar-area {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 15px;
-            background: var(--bg-color);
+            padding: 12px;
+            background: rgba(254, 249, 243, 0.8);
             border-radius: 16px;
-            margin-bottom: 15px;
-            min-height: 110px;
+            margin-bottom: 12px;
+            min-height: 95px;
+            border: 1px solid rgba(251, 196, 171, 0.4);
         }
         .avatar-graphics {
             font-family: monospace;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: 2px;
-            transition: transform 0.2s ease;
         }
         .avatar-balloon {
             font-size: 0.85rem;
-            color: #8a736a;
+            color: #6d5952;
             height: 20px;
             text-align: center;
+            font-weight: 500;
         }
+
         .shop-shelves {
             flex: 1;
             overflow-y: auto;
-            padding-right: 5px;
+            padding-right: 4px;
         }
+        
+        /* スクロールバーをおしゃれに */
+        .shop-shelves::-webkit-scrollbar { width: 6px; }
+        .shop-shelves::-webkit-scrollbar-track { background: transparent; }
+        .shop-shelves::-webkit-scrollbar-thumb { background: var(--main-pink); border-radius: 10px; }
+
         .shelf-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: bold;
-            padding: 4px 8px;
-            background: var(--sub-cream);
-            border-radius: 6px;
-            margin: 12px 0 8px 0;
+            padding: 6px 12px;
+            background: rgba(255, 237, 216, 0.9);
+            border-radius: 20px;
+            margin: 15px 0 8px 0;
+            border-left: 4px solid var(--main-pink);
         }
         .shelf-title:first-child { margin-top: 0; }
+        
+        /* スマホでのスクロール視認性を高めるため1列カードに変更 */
         .items-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         .shop-item-card {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #ffffff;
-            border: 1px solid #eee;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(230, 230, 230, 0.7);
             padding: 10px 14px;
-            border-radius: 12px;
+            border-radius: 14px;
             transition: all 0.2s ease;
         }
         .shop-item-card:hover {
             border-color: var(--main-pink);
-            background: var(--bg-color);
+            background: #ffffff;
+            transform: translateY(-1px);
         }
         .item-info-left {
             display: flex;
@@ -324,26 +325,23 @@
             color: #e29578;
             font-family: var(--font-number);
             font-weight: bold;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .buy-btn {
-            padding: 6px 12px;
+            padding: 6px 16px;
             font-size: 0.8rem;
-            border-radius: 15px;
+            border-radius: 20px;
             box-shadow: none;
             border: 1px solid var(--main-pink);
+            background: #ffffff;
         }
-        .buy-btn:hover {
-            box-shadow: none;
-        }
-
-        /* 🔒 隠しコマンド用スタイル */
+        
         .secret-command-area {
-            background: #faf6f0;
+            background: rgba(250, 246, 240, 0.9);
             border: 1px dashed #d3c4be;
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 15px;
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 5px;
             display: flex;
             flex-direction: column;
             gap: 8px;
@@ -354,12 +352,13 @@
         }
         .secret-input {
             flex: 1;
-            padding: 8px 12px;
-            font-size: 0.9rem;
+            padding: 10px 14px;
+            font-size: 0.85rem;
             border: 1px solid #d3c4be;
             border-radius: 20px;
             outline: none;
             font-family: var(--font-jp);
+            background: #ffffff;
         }
         .secret-input:focus {
             border-color: var(--main-pink);
@@ -373,28 +372,57 @@
             color: white;
             border: none;
         }
+
+        #screen-shop .secondary {
+            background-color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-top: 10px;
+            padding: 12px 24px;
+        }
+        #screen-shop .secondary:hover {
+            background-color: var(--main-pink);
+        }
+
+        /* 📱 スマホ縦画面・レスポンシブ微調整 */
+        @media (max-width: 480px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.3rem; }
+            .timer-display { font-size: 4.5rem; }
+            .shop-layout { height: 68vh; }
+            .global-sp-counter { top: 20px; left: 15px; font-size: 0.85rem; padding: 4px 12px; }
+            .bgm-trigger { padding: 8px 14px; font-size: 0.85rem; }
+            .music-widget { top: 15px; right: 15px; }
+            .player-panel { width: 250px; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- 共通所持SP表示カウント -->
     <div class="global-sp-counter">所持: <span id="global-sp-display">0</span> SP</div>
 
+    <!-- オーディオ要素 -->
     <audio id="bgm-player"></audio>
+    <audio id="shop-player" src="shop.mp3" loop></audio>
     <audio id="alarm-player" src="huurin.mp3"></audio>
 
+    <!-- ミュージックウィジェット -->
     <div class="music-widget">
         <div id="bgm-btn" class="bgm-trigger" onclick="togglePlayerPanel()">
             <span id="bgm-icon">BGM</span>
             <span id="bgm-status-text">Menu</span>
         </div>
         
+        <!-- プレイヤー本体パネル -->
         <div id="player-panel" class="player-panel">
             <div class="track-info">
                 <div id="current-track-title" class="track-title">選択されていません</div>
             </div>
             
             <div class="player-controls">
-                <button class="control-btn" onclick="toggleRepeatMode()" id="btn-repeat" title="リピート切替">LOOP ALL</button>
+                <button class="control-btn" onclick="toggleRepeatMode()" id="btn-repeat">LOOP ALL</button>
                 <button class="control-btn" onclick="prevTrack()">|◀</button>
                 <button class="control-btn play-pause-btn" onclick="togglePlayPause()" id="btn-play-pause">PLAY</button>
                 <button class="control-btn" onclick="nextTrack()">▶|</button>
@@ -407,6 +435,7 @@
         </div>
     </div>
 
+    <!-- 1. メインメニュー画面 -->
     <div id="screen-main" class="screen active">
         <h1>Study Room</h1>
         <p>今日も自分のペースで、心地よく。</p>
@@ -418,6 +447,7 @@
         </div>
     </div>
 
+    <!-- 2. 授業記録：時間選択画面 -->
     <div id="screen-class-select" class="screen">
         <h2>授業時間をえらぶ</h2>
         <div class="grid-buttons">
@@ -429,6 +459,7 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3. 自習：モード選択画面 -->
     <div id="screen-self-select" class="screen">
         <h2>自習スタイルをえらぶ</h2>
         <div class="btn-container">
@@ -439,6 +470,7 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3.5 自習：カスタムタイマー時間設定画面 -->
     <div id="screen-custom-timer-set" class="screen">
         <h2>タイマー時間をセット</h2>
         <div class="spinner-container">
@@ -453,6 +485,7 @@
         <button class="secondary" onclick="changeScreen('screen-self-select')">もどる</button>
     </div>
 
+    <!-- 4. タイマー作動全画面 -->
     <div id="screen-timer" class="screen">
         <div id="alarm-banner" class="alarm-overlay">おつかれさま！時間になりました</div>
         <div id="timer-box" class="timer-container-box">
@@ -466,14 +499,17 @@
         </div>
     </div>
 
+    <!-- 5. ショップ画面 -->
     <div id="screen-shop" class="screen">
         <h2>すたでぃショップ</h2>
         <div class="shop-layout">
+            <!-- アバターエリア -->
             <div class="avatar-area">
                 <div id="avatar-body" class="avatar-graphics">(o^^o)</div>
                 <div id="avatar-speech" class="avatar-balloon">なにか食べたいな…！</div>
             </div>
             
+            <!-- 商品の棚 -->
             <div class="shop-shelves">
                 <div class="shelf-title">のみもの</div>
                 <div id="shop-drinks-list" class="items-grid"></div>
@@ -481,6 +517,7 @@
                 <div class="shelf-title">たべもの</div>
                 <div id="shop-foods-list" class="items-grid"></div>
                 
+                <!-- ごほうびをもらう（隠しコマンドエリア） -->
                 <div class="shelf-title">ごほうびをもらう</div>
                 <div class="secret-command-area">
                     <div class="secret-input-row">
@@ -490,7 +527,7 @@
                 </div>
             </div>
         </div>
-        <button class="secondary" onclick="changeScreen('screen-main')">メインにもどる</button>
+        <button class="secondary" onclick="closeShopScreen()">メインにもどる</button>
     </div>
 
     <script>
@@ -502,14 +539,11 @@
         let pomodoroCycle = 1;
         let currentCustomMinutes = 10;
 
-        // すたでぃポイント (SP) 管理
         let currentSP = parseFloat(localStorage.getItem('study_sp') || '0');
-        let isInfiniteSP = false; // 動作確認用の無限フラグ
+        let isInfiniteSP = false; 
 
-        // 隠しコマンドの使用履歴を保存
         let usedCommands = JSON.parse(localStorage.getItem('study_used_commands') || '{"nenatta":false, "eraiko":false, "ganbatta":false}');
 
-        // ショップの商品データ
         const shopItems = {
             drinks: [
                 { name: "げんきドリンク", price: 150 },
@@ -529,7 +563,6 @@
             ]
         };
 
-        // ミュージックプレイヤー関連データ
         const tracks = [
             { id: 0, title: "三葉のテーマ", file: "music1.mp3" },
             { id: 1, title: "夢灯籠", file: "music2.mp3" }
@@ -540,7 +573,10 @@
         let nextTrackTimeout = null;
 
         const bgmPlayer = document.getElementById('bgm-player');
+        const shopPlayer = document.getElementById('shop-player');
         const alarmPlayer = document.getElementById('alarm-player');
+
+        let wasPlayingBeforeShop = false; // ショップに入る前にBGMが鳴っていたか保持するフラグ
 
         window.onload = function() {
             displayTodayRecord();
@@ -562,7 +598,6 @@
             };
         };
 
-        // SPポイント表示更新
         function updateSPDisplay() {
             const displayEl = document.getElementById('global-sp-display');
             if (isInfiniteSP) {
@@ -573,7 +608,6 @@
             }
         }
 
-        // ショップの棚を組み立てる
         function buildShopMenu() {
             const drinksContainer = document.getElementById('shop-drinks-list');
             drinksContainer.innerHTML = '';
@@ -601,15 +635,71 @@
             return card;
         }
 
-        // ショップ画面を開く
+        // 🎵 オーディオの音量フェードアウト/フェードイン関数
+        function fadeAudio(audioElement, startVol, endVol, duration, callback) {
+            const steps = 20;
+            const stepTime = duration / steps;
+            const volDelta = (endVol - startVol) / steps;
+            let currentStep = 0;
+
+            if (startVol === 0 && endVol > 0) {
+                audioElement.volume = 0;
+                audioElement.play().catch(()=>{});
+            }
+
+            const interval = setInterval(() => {
+                currentStep++;
+                let nextVol = startVol + (volDelta * currentStep);
+                if (nextVol < 0) nextVol = 0;
+                if (nextVol > 1) nextVol = 1;
+                audioElement.volume = nextVol;
+
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    audioElement.volume = endVol;
+                    if (endVol === 0) {
+                        audioElement.pause();
+                    }
+                    if (callback) callback();
+                }
+            }, stepTime);
+        }
+
+        // ショップ画面を開く（BGM切り替え）
         function openShopScreen() {
             changeScreen('screen-shop');
             document.getElementById('avatar-body').innerText = "(o^^o)";
             document.getElementById('avatar-speech').innerText = "なにか食べたいな…！";
             document.getElementById('secret-code-input').value = '';
+
+            // プレイヤー状態を記録
+            wasPlayingBeforeShop = isPlaying;
+
+            if (isPlaying) {
+                // 通常BGMをフェードアウトして一時停止
+                fadeAudio(bgmPlayer, 1.0, 0, 400, () => {
+                    // 通常BGM停止完了後に、ショップBGMをフェードイン
+                    fadeAudio(shopPlayer, 0, 1.0, 400);
+                });
+            } else {
+                // 元々鳴っていなくてもショップ内はshop.mp3をフェードイン再生
+                fadeAudio(shopPlayer, 0, 1.0, 400);
+            }
         }
 
-        // アイテム購入とアバターリアクション
+        // ショップ画面を閉じる（BGMを戻す）
+        function closeShopScreen() {
+            changeScreen('screen-main');
+
+            // ショップBGMをフェードアウト
+            fadeAudio(shopPlayer, 1.0, 0, 400, () => {
+                // もしショップに入る前に音楽が再生されていたら元のBGMをフェードインで再開
+                if (wasPlayingBeforeShop) {
+                    fadeAudio(bgmPlayer, 0, 1.0, 400);
+                }
+            });
+        }
+
         let avatarTimeout = null;
         function buyItem(name, price) {
             if (!isInfiniteSP && currentSP < price) {
@@ -617,7 +707,6 @@
                 return;
             }
 
-            // 無制限状態でなければポイント消費
             if (!isInfiniteSP) {
                 currentSP -= price;
                 updateSPDisplay();
@@ -648,7 +737,6 @@
             }, 4000);
         }
 
-        // 🔒 隠しコマンド処理
         function submitSecretCommand() {
             const inputEl = document.getElementById('secret-code-input');
             const code = inputEl.value.trim();
@@ -659,7 +747,6 @@
             const speechEl = document.getElementById('avatar-speech');
             clearTimeout(avatarTimeout);
 
-            // 1回限りのごほうびコマンド判定
             if (code === "ねなかった") {
                 if (usedCommands.nenatta) {
                     alert("このコマンドはすでに1回使われています。");
@@ -696,7 +783,6 @@
                     speechEl.innerText = "本当にお疲れ様！努力の成果だね。1000SPを受け取って！";
                 }
             }
-            // 🛠 管理者用コマンド（何度でも使える）
             else if (code === "動作確認") {
                 isInfiniteSP = true;
                 updateSPDisplay();
@@ -715,7 +801,7 @@
                 return;
             }
 
-            inputEl.value = ''; // 入力欄をクリア
+            inputEl.value = ''; 
             
             avatarTimeout = setTimeout(() => {
                 bodyEl.innerText = "(o^^o)";
@@ -723,7 +809,7 @@
             }, 6000);
         }
 
-        // 🎵 ミュージックプレイヤー関連
+        // 🎵 ミュージックプレイヤー基礎コントロール
         function togglePlayerPanel() {
             const panel = document.getElementById('player-panel');
             panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
@@ -744,6 +830,7 @@
         function loadTrack(index) {
             currentTrackIndex = index;
             bgmPlayer.src = tracks[index].file;
+            bgmPlayer.volume = 1.0; 
             document.getElementById('current-track-title').innerText = tracks[index].title;
             renderPlaylist();
         }
@@ -765,12 +852,12 @@
             const icon = document.getElementById('bgm-icon');
 
             if (!isPlaying) {
+                bgmPlayer.volume = 1.0;
                 bgmPlayer.play().then(() => {
                     isPlaying = true;
                     btn.innerText = 'PAUSE';
                     triggerBtn.classList.add('playing');
                     icon.innerText = 'BGM ON';
-                    document.getElementById('current-track-title').innerText = tracks[currentTrackIndex].title;
                 }).catch(err => {
                     alert('音楽ファイルが読み込めないか見つかりません。');
                 });
@@ -806,7 +893,7 @@
                 btn.innerText = 'LOOP ONE';
                 btn.classList.add('active');
             } else {
-                repeatMode === 'all';
+                repeatMode = 'all';
                 btn.innerText = 'LOOP ALL';
                 btn.classList.remove('active');
             }
@@ -815,7 +902,7 @@
         function playChimeSound() {
             alarmPlayer.currentTime = 0;
             alarmPlayer.volume = 0.8; 
-            alarmPlayer.play().catch(e => console.log("アラーム再生制限対策"));
+            alarmPlayer.play().catch(e => console.log("再生制限回避"));
         }
 
         function getTodayString() {
@@ -841,7 +928,6 @@
             localStorage.setItem('study_today_minutes', currentTotalMinutes + minutesEarned);
             displayTodayRecord();
 
-            // 無制限状態でなければSP加算
             if (!isInfiniteSP) {
                 const pointsEarned = minutesEarned * 10;
                 currentSP += pointsEarned;
