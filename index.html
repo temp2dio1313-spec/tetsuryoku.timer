@@ -221,18 +221,13 @@
 </head>
 <body>
 
-    <!-- オーディオ要素 -->
     <audio id="bgm-player"></audio>
-    <audio id="alarm-player" src="風鈴.mp3"></audio>
-
-    <!-- ミュージックウィジェット -->
-    <div class="music-widget">
+    <audio id="alarm-player" src="huurin.mp3"></audio> <div class="music-widget">
         <div id="bgm-btn" class="bgm-trigger" onclick="togglePlayerPanel()">
             <span id="bgm-icon">BGM</span>
             <span id="bgm-status-text">Menu</span>
         </div>
         
-        <!-- プレイヤー本体パネル -->
         <div id="player-panel" class="player-panel">
             <div class="track-info">
                 <div id="current-track-title" class="track-title">選択されていません</div>
@@ -252,7 +247,6 @@
         </div>
     </div>
 
-    <!-- 1. メインメニュー画面 -->
     <div id="screen-main" class="screen active">
         <h1>Study Room</h1>
         <p>今日も自分のペースで、心地よく。</p>
@@ -263,7 +257,6 @@
         </div>
     </div>
 
-    <!-- 2. 授業記録：時間選択画面 -->
     <div id="screen-class-select" class="screen">
         <h2>授業時間をえらぶ</h2>
         <div class="grid-buttons">
@@ -275,7 +268,6 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
-    <!-- 3. 自習：モード選択画面 -->
     <div id="screen-self-select" class="screen">
         <h2>自習スタイルをえらぶ</h2>
         <div class="btn-container">
@@ -286,7 +278,6 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
-    <!-- 3.5 自習：カスタムタイマー時間設定画面 -->
     <div id="screen-custom-timer-set" class="screen">
         <h2>タイマー時間をセット</h2>
         <div class="spinner-container">
@@ -301,7 +292,6 @@
         <button class="secondary" onclick="changeScreen('screen-self-select')">もどる</button>
     </div>
 
-    <!-- 4. タイマー作動全画面 -->
     <div id="screen-timer" class="screen">
         <div id="alarm-banner" class="alarm-overlay">おつかれさま！時間になりました</div>
         <div id="timer-box" class="timer-container-box">
@@ -324,10 +314,10 @@
         let pomodoroCycle = 1;
         let currentCustomMinutes = 10;
 
-        // ミュージックプレイヤー関連データ
+        // ミュージックプレイヤー関連データ（曲名表示を日本語に変更）
         const tracks = [
-            { id: 0, title: "music1", file: "music1.mp3" },
-            { id: 1, title: "music2", file: "music2.mp3" }
+            { id: 0, title: "三葉のテーマ", file: "music1.mp3" },
+            { id: 1, title: "夢灯籠", file: "music2.mp3" }
         ];
         let currentTrackIndex = 0;
         let isPlaying = false;
@@ -422,6 +412,7 @@
             if (isPlaying) bgmPlayer.play().catch(()=>{});
         }
 
+        // 前の曲
         function prevTrack() {
             clearTimeout(nextTrackTimeout);
             let prevIndex = currentTrackIndex - 1;
@@ -484,7 +475,6 @@
             document.getElementById('timer-box').classList.remove('cute-poyo');
             document.getElementById('alarm-banner').style.display = 'none';
             
-            // 画面を戻す時は一応背景をデフォルトにリセット(ポモドーロ終了・中断対策)
             if (screenId === 'screen-main' || screenId === 'screen-self-select') {
                 document.body.classList.remove('rest-mode-bg');
             }
@@ -522,7 +512,7 @@
             totalSeconds = 25 * 60;
             elapsedSecondsInSession = 0; isPaused = false; pomodoroCycle = 1;
             
-            document.body.classList.remove('rest-mode-bg'); // 勉強時間：通常背景
+            document.body.classList.remove('rest-mode-bg'); 
             document.getElementById('timer-status').innerText = 'ポモドーロ：集中タイム';
             document.getElementById('pomo-cycle').style.display = 'block';
             document.getElementById('pomo-cycle').querySelector('span').innerText = pomodoroCycle;
@@ -542,9 +532,9 @@
                         clearInterval(timerInterval);
                         
                         if (currentMode === 'pomodoro-work') {
-                            playChimeSound(); // 25分終了（風鈴）
+                            playChimeSound(); 
                             
-                            document.body.classList.add('rest-mode-bg'); // 休憩開始：薄い水色に変更
+                            document.body.classList.add('rest-mode-bg'); 
                             
                             document.getElementById('alarm-banner').innerText = 'おつかれさま！5分休憩してね';
                             document.body.classList.add('cute-alarm-bg');
@@ -562,9 +552,9 @@
                                 updateDisplay(); runPomodoroTimer();
                             }, 4000);
                         } else {
-                            playChimeSound(); // 5分休憩終了（風鈴）
+                            playChimeSound(); 
                             
-                            document.body.classList.remove('rest-mode-bg'); // 勉強時間再開：元の背景色に戻す
+                            document.body.classList.remove('rest-mode-bg'); 
                             
                             pomodoroCycle++;
                             currentMode = 'pomodoro-work';
@@ -622,7 +612,7 @@
             clearInterval(timerInterval); timerInterval = null;
             saveStudyTime(elapsedSecondsInSession);
             elapsedSecondsInSession = 0;
-            document.body.classList.remove('rest-mode-bg'); // タイマー終了時は背景色を必ずリセット
+            document.body.classList.remove('rest-mode-bg'); 
             changeScreen('screen-main');
         }
     </script>
