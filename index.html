@@ -21,6 +21,10 @@
             --text-color: #6d5952;
             --font-number: "Bodoni Moda", serif;
             --font-jp: "Noto Sans JP", sans-serif;
+            
+            /* アバターのカラー */
+            --avatar-skin: #fff5eb;
+            --avatar-blush: #ffb5a7;
         }
 
         * {
@@ -241,36 +245,130 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
+        /* 🥚 リアルになったインタラクティブCSSアバター */
         .avatar-area {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 12px;
-            background: rgba(254, 249, 243, 0.8);
-            border-radius: 16px;
+            justify-content: flex-start;
+            padding: 12px 20px;
+            background: rgba(254, 249, 243, 0.85);
+            border-radius: 18px;
             margin-bottom: 12px;
-            min-height: 95px;
+            min-height: 110px;
             border: 1px solid rgba(251, 196, 171, 0.4);
             cursor: pointer;
             user-select: none;
-            transition: transform 0.1s ease;
+            gap: 15px;
         }
-        .avatar-area:active {
-            transform: scale(0.97);
+        
+        .avatar-body-wrapper {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .avatar-graphics {
-            font-family: monospace;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-            letter-spacing: 2px;
+        /* タップでぴょこんと跳ねるアニメーション用のクラス */
+        .avatar-body-wrapper.jump {
+            animation: avatarJump 0.4s ease;
+        }
+        @keyframes avatarJump {
+            0%, 100% { transform: translateY(0) scale(1, 1); }
+            30% { transform: translateY(-16px) scale(0.9, 1.1); }
+            70% { transform: translateY(2px) scale(1.05, 0.95); }
+        }
+
+        .avatar-character {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            background: var(--avatar-skin);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 4px 10px rgba(109, 89, 82, 0.15), inset 0 -3px 6px rgba(109, 89, 82, 0.05);
+            border: 2px solid var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* おめめ（通常時は自動でまばたき） */
+        .avatar-eye {
+            position: absolute;
+            top: 24px;
+            width: 7px;
+            height: 7px;
+            background: var(--text-color);
+            border-radius: 50%;
+            animation: blinkEyes 4s infinite;
+            transition: all 0.1s ease;
+        }
+        .avatar-eye.left { left: 14px; }
+        .avatar-eye.right { right: 14px; }
+        
+        @keyframes blinkEyes {
+            0%, 96%, 100% { transform: scaleY(1); height: 7px; border-radius: 50%; background: var(--text-color); }
+            98% { transform: scaleY(0.1); height: 2px; }
+        }
+
+        /* 笑顔、大喜び状態のおめめ表情変更用クラス */
+        .avatar-character.happy .avatar-eye {
+            animation: none;
+            height: 5px;
+            width: 8px;
+            background: transparent;
+            border-radius: 0;
+            border-top: 2.5px solid var(--text-color);
+            top: 25px;
+        }
+        .avatar-character.happy .avatar-eye.left { transform: rotate(-10deg); }
+        .avatar-character.happy .avatar-eye.right { transform: rotate(10deg); }
+
+        /* ほっぺ */
+        .avatar-blush-cheek {
+            position: absolute;
+            top: 30px;
+            width: 10px;
+            height: 6px;
+            background: var(--avatar-blush);
+            border-radius: 50%;
+            opacity: 0.6;
+            filter: blur(0.5px);
+        }
+        .avatar-blush-cheek.left { left: 8px; }
+        .avatar-blush-cheek.right { right: 8px; }
+
+        /* おくち */
+        .avatar-mouth {
+            position: absolute;
+            top: 32px;
+            width: 8px;
+            height: 4px;
+            border-bottom: 2px solid var(--text-color);
+            border-radius: 0 0 4px 4px;
+            transition: all 0.1s ease;
+        }
+        /* 喜び・もぐもぐ状態のおくち */
+        .avatar-character.happy .avatar-mouth {
+            width: 10px;
+            height: 7px;
+            background: #ff758f;
+            border: 2px solid var(--text-color);
+            border-radius: 2px 2px 50% 50%;
+        }
+
+        /* ふきだし */
+        .avatar-right-balloon-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .avatar-balloon {
             font-size: 0.85rem;
             color: #6d5952;
-            height: 20px;
-            text-align: center;
+            line-height: 1.4;
             font-weight: 500;
         }
 
@@ -510,10 +608,20 @@
     <div id="screen-shop" class="screen">
         <h2>すたでぃショップ</h2>
         <div class="shop-layout">
-            <!-- アバターエリア（クリックイベント追加） -->
+            <!-- アバターエリア（新CSSデザインアバター） -->
             <div class="avatar-area" onclick="tapAvatar()">
-                <div id="avatar-body" class="avatar-graphics">(o^^o)</div>
-                <div id="avatar-speech" class="avatar-balloon">なにか食べたいな…！</div>
+                <div id="avatar-wrapper" class="avatar-body-wrapper">
+                    <div id="avatar-character" class="avatar-character">
+                        <div class="avatar-eye left"></div>
+                        <div class="avatar-eye right"></div>
+                        <div class="avatar-blush-cheek left"></div>
+                        <div class="avatar-blush-cheek right"></div>
+                        <div class="avatar-mouth"></div>
+                    </div>
+                </div>
+                <div class="avatar-right-balloon-box">
+                    <div id="avatar-speech" class="avatar-balloon">なにか食べたいな…！</div>
+                </div>
             </div>
             
             <!-- 商品の棚 -->
@@ -605,6 +713,12 @@
                     }, 3000);
                 }
             };
+
+            // 効果音再生終了時にBGMの音量を戻すイベントリスナーを登録
+            sePlayer.onended = function() {
+                // 滑らかにBGM音量を1.0に戻す
+                fadeAudioVolumeOnly(shopPlayer, 0.05, 1.0, 300);
+            };
         };
 
         function updateSPDisplay() {
@@ -644,6 +758,7 @@
             return card;
         }
 
+        // 音楽の一時停止や再生を伴うフェード処理
         function fadeAudio(audioElement, startVol, endVol, duration, callback) {
             const steps = 20;
             const stepTime = duration / steps;
@@ -673,9 +788,30 @@
             }, stepTime);
         }
 
+        // 再生状態を変えず、音量（Volume）だけをスムーズに変える関数
+        function fadeAudioVolumeOnly(audioElement, startVol, endVol, duration) {
+            const steps = 15;
+            const stepTime = duration / steps;
+            const volDelta = (endVol - startVol) / steps;
+            let currentStep = 0;
+
+            const interval = setInterval(() => {
+                currentStep++;
+                let nextVol = startVol + (volDelta * currentStep);
+                if (nextVol < 0) nextVol = 0;
+                if (nextVol > 1) nextVol = 1;
+                audioElement.volume = nextVol;
+
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    audioElement.volume = endVol;
+                }
+            }, stepTime);
+        }
+
         function openShopScreen() {
             changeScreen('screen-shop');
-            document.getElementById('avatar-body').innerText = "(o^^o)";
+            resetAvatarState();
             document.getElementById('avatar-speech').innerText = "なにか食べたいな…！";
             document.getElementById('secret-code-input').value = '';
 
@@ -700,21 +836,29 @@
             });
         }
 
+        function resetAvatarState() {
+            const charEl = document.getElementById('avatar-character');
+            const wrapperEl = document.getElementById('avatar-wrapper');
+            charEl.classList.remove('happy');
+            wrapperEl.classList.remove('jump');
+        }
+
         // アバタータッチ時のリアクション
         let avatarTapTimeout = null;
         function tapAvatar() {
-            // タッチ効果音を再生
             avatarSePlayer.currentTime = 0;
             avatarSePlayer.play().catch(()=>{});
 
-            const bodyEl = document.getElementById('avatar-body');
+            const charEl = document.getElementById('avatar-character');
+            const wrapperEl = document.getElementById('avatar-wrapper');
             const speechEl = document.getElementById('avatar-speech');
             
-            // プレゼント時のタイマーとバッティングしないように一旦クリア
             clearTimeout(avatarTimeout);
             clearTimeout(avatarTapTimeout);
+            resetAvatarState();
 
-            bodyEl.innerText = "(*>∀<*)";
+            // ぴょこんとジャンプさせる
+            setTimeout(() => { wrapperEl.classList.add('jump'); }, 10);
             
             const lines = [
                 "なになにー？いっしょにがんばろうね！",
@@ -726,7 +870,7 @@
             speechEl.innerText = randomLine;
 
             avatarTapTimeout = setTimeout(() => {
-                bodyEl.innerText = "(o^^o)";
+                resetAvatarState();
                 speechEl.innerText = "次は何をくれるの？";
             }, 3000);
         }
@@ -743,43 +887,54 @@
                 updateSPDisplay();
             }
 
-            const bodyEl = document.getElementById('avatar-body');
+            const charEl = document.getElementById('avatar-character');
+            const wrapperEl = document.getElementById('avatar-wrapper');
             const speechEl = document.getElementById('avatar-speech');
             
             clearTimeout(avatarTimeout);
             clearTimeout(avatarTapTimeout);
+            resetAvatarState();
 
-            // 金額に応じたセリフ切り替えと効果音再生
+            let hasSE = false;
+
+            // 金額に応じたセリフ切り替えと効果音再生、表情変更
             if (price >= 1000) {
-                // 1番喜んでいるとき
+                hasSE = true;
+                shopPlayer.volume = 0.05; // 店内BGMを極小にする
                 sePlayer.src = "oishi01.mp3";
-                sePlayer.play().catch(()=>{});
+                sePlayer.play().catch(()=>{ shopPlayer.volume = 1.0; });
 
-                bodyEl.innerText = "＼(≧▽≦)／";
+                charEl.classList.add('happy');
+                setTimeout(() => { wrapperEl.classList.add('jump'); }, 10);
                 speechEl.innerText = `すごすぎる！高級な ${name} だー！！幸せ！`;
             } else if (price >= 600) {
-                // つぎに喜んでいるとき
+                hasSE = true;
+                shopPlayer.volume = 0.05; // 店内BGMを極小にする
                 sePlayer.src = "oishi02.mp3";
-                sePlayer.play().catch(()=>{});
+                sePlayer.play().catch(()=>{ shopPlayer.volume = 1.0; });
 
-                bodyEl.innerText = " ＼(＠＾▽＾＠)／ ";
+                charEl.classList.add('happy');
+                setTimeout(() => { wrapperEl.classList.add('jump'); }, 10);
                 speechEl.innerText = `わあー！贅沢な ${name} ！！すっごく嬉しい！`;
             } else if (price >= 300) {
-                // さらにそのつぎに喜んでいるとき
+                hasSE = true;
+                shopPlayer.volume = 0.05; // 店内BGMを極小にする
                 sePlayer.src = "oishi03.mp3";
-                sePlayer.play().catch(()=>{});
+                sePlayer.play().catch(()=>{ shopPlayer.volume = 1.0; });
 
-                bodyEl.innerText = "( *´▽`* )";
+                charEl.classList.add('happy');
                 speechEl.innerText = `おいしい ${name} ありがとう！やる気が出るよ！`;
             } else {
-                // 通常時（100円〜250円）は効果音なしでもぐもぐ
-                bodyEl.innerText = "(*^o^*)";
+                // 100〜250円は効果音なし
+                charEl.classList.add('happy');
                 speechEl.innerText = `${name} もぐもぐ！美味しいよ、ありがとう！`;
             }
 
             avatarTimeout = setTimeout(() => {
-                bodyEl.innerText = "(o^^o)";
+                resetAvatarState();
                 speechEl.innerText = "次は何をくれるの？";
+                // 効果音がなかった低価格アイテムの時はここで音量を念のため通常化
+                if(!hasSE) shopPlayer.volume = 1.0;
             }, 4000);
         }
 
@@ -789,10 +944,11 @@
             
             if (!code) return;
 
-            const bodyEl = document.getElementById('avatar-body');
+            const charEl = document.getElementById('avatar-character');
             const speechEl = document.getElementById('avatar-speech');
             clearTimeout(avatarTimeout);
             clearTimeout(avatarTapTimeout);
+            resetAvatarState();
 
             if (code === "ねなかった") {
                 if (usedCommands.nenatta) {
@@ -802,7 +958,7 @@
                     localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
                     if (!isInfiniteSP) currentSP += 1000;
                     updateSPDisplay();
-                    bodyEl.innerText = "(*’▽’*)b";
+                    charEl.classList.add('happy');
                     speechEl.innerText = "誘惑に負けずに起きてて本当にえらい！1000SPをあげるね！";
                 }
             } 
@@ -814,7 +970,7 @@
                     localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
                     if (!isInfiniteSP) currentSP += 1000;
                     updateSPDisplay();
-                    bodyEl.innerText = "＼( ^▽^ )／";
+                    charEl.classList.add('happy');
                     speechEl.innerText = "あなたは最高のえらいこ！いつも見てるよ。1000SPをどうぞ！";
                 }
             } 
@@ -826,21 +982,19 @@
                     localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
                     if (!isInfiniteSP) currentSP += 1000;
                     updateSPDisplay();
-                    bodyEl.innerText = " ＿〆(≧▽≦) ";
+                    charEl.classList.add('happy');
                     speechEl.innerText = "本当にお疲れ様！努力の成果だね。1000SPを受け取って！";
                 }
             }
             else if (code === "動作確認") {
                 isInfiniteSP = true;
                 updateSPDisplay();
-                bodyEl.innerText = "(￣▽￣)ゞ";
                 speechEl.innerText = "管理者モード：SPを【無制限】に切り替えました。";
             } 
             else if (code === "動作確認終了") {
                 isInfiniteSP = false;
                 currentSP = 0;
                 updateSPDisplay();
-                bodyEl.innerText = "=(￣□￣;)";
                 speechEl.innerText = "管理者モード終了：SPを【0】にリセットしました。";
             } 
             else {
@@ -851,7 +1005,7 @@
             inputEl.value = ''; 
             
             avatarTimeout = setTimeout(() => {
-                bodyEl.innerText = "(o^^o)";
+                resetAvatarState();
                 speechEl.innerText = "なにか食べたいな…！";
             }, 6000);
         }
