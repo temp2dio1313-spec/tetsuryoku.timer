@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ふんわり勉強タイマー</title>
+    <title>ふんわり勉強タイマー & ミュージックプレイヤー</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -11,6 +11,7 @@
     <style>
         :root {
             --bg-color: #fef9f3;
+            --bg-rest-color: #eef7f9; /* 休憩中のおしゃれな薄い水色 */
             --main-pink: #fbc4ab;
             --sub-cream: #ffedd8;
             --text-color: #6d5952;
@@ -33,297 +34,236 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: background-color 0.5s ease;
+            transition: background-color 0.6s ease, color 0.5s ease;
             position: relative;
         }
 
-        /* 🎵 音楽切り替えボタン（右上に配置） */
-        .bgm-controller {
+        /* 休憩中の背景クラス */
+        body.rest-mode-bg {
+            background-color: var(--bg-rest-color) !important;
+        }
+
+        /* 音楽コントローラーコンテナ */
+        .music-widget {
             position: absolute;
             top: 20px;
             right: 20px;
-            z-index: 100; /* 一番手前に表示 */
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        /* メインボタン */
+        .bgm-trigger {
             display: flex;
             align-items: center;
             gap: 8px;
             background-color: #ffffff;
             border: 2px solid var(--sub-cream);
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 10px 18px;
+            border-radius: 25px;
             box-shadow: 0 4px 10px rgba(243, 224, 211, 0.4);
             cursor: pointer;
             transition: all 0.3s ease;
             user-select: none;
         }
-        .bgm-controller:hover {
+        .bgm-trigger:hover {
             border-color: var(--main-pink);
             transform: translateY(-1px);
         }
-        .bgm-icon {
-            font-size: 1.1rem;
-        }
-        .bgm-text {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-        /* 再生中のふわふわ光るエフェクト */
-        .bgm-controller.playing {
+        .bgm-trigger.playing {
             background-color: var(--sub-cream);
             border-color: var(--main-pink);
+        }
+
+        /* 展開されるプレイヤーパネル */
+        .player-panel {
+            display: none;
+            width: 280px;
+            background: #ffffff;
+            border: 2px solid var(--sub-cream);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 25px rgba(109, 89, 82, 0.1);
+            animation: fadeInDown 0.3s ease forwards;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .track-info {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .track-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 15px;
+        }
+        .control-btn {
+            background: none;
+            border: none;
+            box-shadow: none;
+            padding: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.2s, transform 0.1s;
+            width: auto; height: auto; border-radius: 0;
+        }
+        .control-btn:hover {
+            background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none;
+        }
+        .control-btn.active {
+            color: #e29578;
+        }
+        .play-pause-btn {
+            font-size: 1.2rem;
+        }
+
+        /* 曲一覧リスト */
+        .playlist {
+            border-top: 1px dashed var(--sub-cream);
+            padding-top: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .playlist-title {
+            font-size: 0.75rem;
+            color: #8a736a;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .track-item {
+            font-size: 0.85rem;
+            padding: 6px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            transition: background 0.2s;
+        }
+        .track-item:hover {
+            background-color: var(--bg-color);
+        }
+        .track-item.current {
+            background-color: var(--sub-cream);
+            font-weight: 500;
         }
 
         /* 画面共通スタイル */
         .screen {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
             transition: opacity 0.5s ease, transform 0.5s ease;
-            transform: scale(0.95);
-            background-color: transparent;
-            padding: 20px;
+            transform: scale(0.95); background-color: transparent; padding: 20px;
         }
-
-        .screen.active {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-            font-weight: 400;
-            letter-spacing: 0.05em;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 25px;
-            font-weight: 300;
-        }
-
-        p {
-            font-size: 1rem;
-            margin-bottom: 20px;
-            color: #8a736a;
-        }
+        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+        h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 400; letter-spacing: 0.05em; }
+        h2 { font-size: 1.5rem; margin-bottom: 25px; font-weight: 300; }
+        p { font-size: 1rem; margin-bottom: 20px; color: #8a736a; }
 
         .record-box {
-            background-color: #ffffff;
-            border: 1px dashed var(--main-pink);
-            padding: 12px 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            font-size: 0.95rem;
-            text-align: center;
+            background-color: #ffffff; border: 1px dashed var(--main-pink);
+            padding: 12px 25px; border-radius: 15px; margin-bottom: 30px; font-size: 0.95rem; text-align: center;
             box-shadow: 0 4px 10px rgba(243, 224, 211, 0.2);
         }
-        .record-box span {
-            font-family: var(--font-number);
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #e29578;
-            margin: 0 4px;
-        }
-
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            max-width: 300px;
-        }
-
-        .grid-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 20px;
-        }
+        .record-box span { font-family: var(--font-number); font-size: 1.4rem; font-weight: bold; color: #e29578; margin: 0 4px; }
+        .btn-container { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; }
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 400px; margin-bottom: 20px; }
 
         button {
-            font-family: var(--font-jp);
-            background-color: #ffffff;
-            border: 2px solid var(--sub-cream);
-            color: var(--text-color);
-            padding: 15px 25px;
-            font-size: 1.1rem;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(243, 224, 211, 0.4);
-            transition: all 0.3s ease;
+            font-family: var(--font-jp); background-color: #ffffff; border: 2px solid var(--sub-cream);
+            color: var(--text-color); padding: 15px 25px; font-size: 1.1rem; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(243, 224, 211, 0.4); transition: all 0.3s ease;
         }
-
-        button:hover {
-            background-color: var(--main-pink);
-            color: white;
-            border-color: var(--main-pink);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(251, 196, 171, 0.6);
-        }
-
-        button.secondary {
-            background-color: transparent;
-            border: 1px solid #d3c4be;
-            box-shadow: none;
-            margin-top: 20px;
-            font-size: 0.95rem;
-            padding: 10px 20px;
-        }
-        button.secondary:hover {
-            background-color: #d3c4be;
-            color: white;
-        }
+        button:hover { background-color: var(--main-pink); color: white; border-color: var(--main-pink); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(251, 196, 171, 0.6); }
+        button.secondary { background-color: transparent; border: 1px solid #d3c4be; box-shadow: none; margin-top: 20px; font-size: 0.95rem; padding: 10px 20px; }
+        button.secondary:hover { background-color: #d3c4be; color: white; }
 
         .spinner-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            background: #fff;
-            padding: 15px 30px;
-            border-radius: 40px;
-            border: 2px solid var(--sub-cream);
-            box-shadow: 0 4px 15px rgba(243, 224, 211, 0.2);
+            display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 30px;
+            background: #fff; padding: 15px 30px; border-radius: 40px; border: 2px solid var(--sub-cream); box-shadow: 0 4px 15px rgba(243, 224, 211, 0.2);
         }
-        .spinner-display {
-            font-family: var(--font-number);
-            font-size: 3rem;
-            font-weight: 400;
-            width: 90px;
-            text-align: center;
-            user-select: none;
-        }
-        .spinner-unit {
-            font-size: 1.2rem;
-            color: var(--text-color);
-            margin-right: 10px;
-        }
-        .spinner-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .spinner-arrow {
-            background: none;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            color: #bfa397;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-        .spinner-arrow:hover {
-            background: none;
-            color: var(--main-pink);
-            transform: scale(1.1);
-            box-shadow: none;
-        }
+        .spinner-display { font-family: var(--font-number); font-size: 3rem; font-weight: 400; width: 90px; text-align: center; user-select: none; }
+        .spinner-unit { font-size: 1.2rem; color: var(--text-color); margin-right: 10px; }
+        .spinner-nav { display: flex; flex-direction: column; gap: 8px; }
+        .spinner-arrow { background: none; border: none; box-shadow: none; padding: 0; width: 32px; height: 32px; cursor: pointer; color: #bfa397; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
+        .spinner-arrow:hover { background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none; }
 
-        .timer-container-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        .timer-container-box { display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .timer-display { font-family: var(--font-number); font-size: 6rem; font-weight: 400; margin-bottom: 20px; letter-spacing: 2px; }
+        .status-badge { background-color: var(--sub-cream); padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 15px; font-weight: 500; }
+        .cycle-count { font-size: 1.1rem; margin-bottom: 20px; }
+        .cycle-count span { font-family: var(--font-number); font-size: 1.5rem; font-weight: bold; }
 
-        .timer-display {
-            font-family: var(--font-number);
-            font-size: 6rem;
-            font-weight: 400;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-        }
-
-        .status-badge {
-            background-color: var(--sub-cream);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-
-        .cycle-count {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-        .cycle-count span {
-            font-family: var(--font-number);
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        @keyframes soft-bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08) translateY(-10px); }
-        }
-
-        .cute-alarm-bg {
-            background-color: #fff0f3 !important;
-        }
-
-        .cute-poyo {
-            animation: soft-bounce 0.8s infinite ease-in-out;
-        }
-
-        .alarm-overlay {
-            display: none;
-            position: absolute;
-            top: 12%;
-            background: #ffb5a7;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 1.05rem;
-            box-shadow: 0 8px 20px rgba(251, 181, 167, 0.4);
-            letter-spacing: 0.05em;
-        }
+        @keyframes soft-bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08) translateY(-10px); } }
+        .cute-alarm-bg { background-color: #fff0f3 !important; }
+        .cute-poyo { animation: soft-bounce 0.8s infinite ease-in-out; }
+        .alarm-overlay { display: none; position: absolute; top: 12%; background: #ffb5a7; color: white; padding: 12px 28px; border-radius: 25px; font-weight: bold; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(251, 181, 167, 0.4); letter-spacing: 0.05em; }
     </style>
 </head>
 <body>
 
-    <audio id="bgm-player" src="music1.mp3" loop></audio>
+    <!-- オーディオ要素 -->
+    <audio id="bgm-player"></audio>
+    <audio id="alarm-player" src="風鈴.mp3"></audio>
 
-    <div id="bgm-btn" class="bgm-controller" onclick="toggleBGM()">
-        <span id="bgm-icon" class="bgm-icon">🎵</span>
-        <span id="bgm-text" class="bgm-text">Music: OFF</span>
+    <!-- ミュージックウィジェット -->
+    <div class="music-widget">
+        <div id="bgm-btn" class="bgm-trigger" onclick="togglePlayerPanel()">
+            <span id="bgm-icon">BGM</span>
+            <span id="bgm-status-text">Menu</span>
+        </div>
+        
+        <!-- プレイヤー本体パネル -->
+        <div id="player-panel" class="player-panel">
+            <div class="track-info">
+                <div id="current-track-title" class="track-title">選択されていません</div>
+            </div>
+            
+            <div class="player-controls">
+                <button class="control-btn" onclick="toggleRepeatMode()" id="btn-repeat" title="リピート切替">LOOP ALL</button>
+                <button class="control-btn" onclick="prevTrack()">|◀</button>
+                <button class="control-btn play-pause-btn" onclick="togglePlayPause()" id="btn-play-pause">PLAY</button>
+                <button class="control-btn" onclick="nextTrack()">▶|</button>
+            </div>
+            
+            <div class="playlist">
+                <div class="playlist-title">曲一覧</div>
+                <div id="playlist-items"></div>
+            </div>
+        </div>
     </div>
 
+    <!-- 1. メインメニュー画面 -->
     <div id="screen-main" class="screen active">
         <h1>Study Room</h1>
         <p>今日も自分のペースで、心地よく。</p>
-        
-        <div class="record-box">
-            今日の勉強時間: <span id="today-record-time">0分</span>
-        </div>
-
+        <div class="record-box">今日の勉強時間: <span id="today-record-time">0分</span></div>
         <div class="btn-container">
             <button onclick="changeScreen('screen-class-select')">授業記録モード</button>
             <button onclick="changeScreen('screen-self-select')">自習モード</button>
         </div>
     </div>
 
+    <!-- 2. 授業記録：時間選択画面 -->
     <div id="screen-class-select" class="screen">
         <h2>授業時間をえらぶ</h2>
         <div class="grid-buttons">
@@ -335,6 +275,7 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3. 自習：モード選択画面 -->
     <div id="screen-self-select" class="screen">
         <h2>自習スタイルをえらぶ</h2>
         <div class="btn-container">
@@ -345,9 +286,9 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3.5 自習：カスタムタイマー時間設定画面 -->
     <div id="screen-custom-timer-set" class="screen">
         <h2>タイマー時間をセット</h2>
-        
         <div class="spinner-container">
             <div id="custom-minutes-display" class="spinner-display">10</div>
             <div class="spinner-unit">分</div>
@@ -356,22 +297,18 @@
                 <button class="spinner-arrow" onclick="adjustMinutes(-1)">▼</button>
             </div>
         </div>
-
-        <div class="btn-container">
-            <button onclick="startCustomTimer()">タイマーを開始する</button>
-        </div>
+        <div class="btn-container"><button onclick="startCustomTimer()">タイマーを開始する</button></div>
         <button class="secondary" onclick="changeScreen('screen-self-select')">もどる</button>
     </div>
 
+    <!-- 4. タイマー作動全画面 -->
     <div id="screen-timer" class="screen">
         <div id="alarm-banner" class="alarm-overlay">おつかれさま！時間になりました</div>
-        
         <div id="timer-box" class="timer-container-box">
             <div id="timer-status" class="status-badge">授業記録</div>
             <div id="pomo-cycle" class="cycle-count" style="display: none;">ただいま <span>1</span> サイクル目</div>
             <div id="timer-text" class="timer-display">00:00:00</div>
         </div>
-        
         <div class="btn-container" style="flex-direction: row; justify-content: center; z-index: 10;">
             <button id="btn-pause" onclick="togglePause()">一時停止</button>
             <button id="btn-stop" class="secondary" style="margin-top:0;" onclick="stopTimer()">終了する</button>
@@ -387,52 +324,130 @@
         let pomodoroCycle = 1;
         let currentCustomMinutes = 10;
 
-        // オーディオ（アラーム音用）
-        let audioCtx = null;
-        
-        // 🎵 BGM再生・停止フラグ
-        let isBGMPlaying = false;
+        // ミュージックプレイヤー関連データ
+        const tracks = [
+            { id: 0, title: "music1", file: "music1.mp3" },
+            { id: 1, title: "music2", file: "music2.mp3" }
+        ];
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+        let repeatMode = 'all'; // 'all' (全曲ループ), 'one' (1曲リピート)
+        let nextTrackTimeout = null;
 
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-        }
-
-        // 🎵 BGMのオンオフ切り替え
-        function toggleBGM() {
-            initAudio(); // アラームの準備も同時に行う
-            const player = document.getElementById('bgm-player');
-            const btn = document.getElementById('bgm-btn');
-            const icon = document.getElementById('bgm-icon');
-            const text = document.getElementById('bgm-text');
-
-            if (!isBGMPlaying) {
-                // 再生する
-                player.play().then(() => {
-                    isBGMPlaying = true;
-                    btn.classList.add('playing');
-                    icon.innerText = '🎶';
-                    text.innerText = 'Music: ON';
-                }).catch(err => {
-                    alert('音楽ファイル「music1.mp3」が見つからないか、ブラウザにブロックされました。ファイルを同じフォルダに置いてみてください。');
-                });
-            } else {
-                // 停止する
-                player.pause();
-                isBGMPlaying = false;
-                btn.classList.remove('playing');
-                icon.innerText = '🎵';
-                text.innerText = 'Music: OFF';
-            }
-        }
+        const bgmPlayer = document.getElementById('bgm-player');
+        const alarmPlayer = document.getElementById('alarm-player');
 
         window.onload = function() {
             displayTodayRecord();
+            renderPlaylist();
+            loadTrack(currentTrackIndex);
+            
+            bgmPlayer.onended = function() {
+                if (repeatMode === 'one') {
+                    bgmPlayer.play();
+                } else {
+                    clearTimeout(nextTrackTimeout);
+                    document.getElementById('current-track-title').innerText = "間隔をあけています (3秒)...";
+                    nextTrackTimeout = setTimeout(() => {
+                        nextTrack();
+                    }, 3000);
+                }
+            };
         };
+
+        function togglePlayerPanel() {
+            const panel = document.getElementById('player-panel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function renderPlaylist() {
+            const listContainer = document.getElementById('playlist-items');
+            listContainer.innerHTML = '';
+            tracks.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = `track-item ${index === currentTrackIndex ? 'current' : ''}`;
+                item.innerText = `${track.title}`;
+                item.onclick = () => selectTrack(index);
+                listContainer.appendChild(item);
+            });
+        }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            bgmPlayer.src = tracks[index].file;
+            document.getElementById('current-track-title').innerText = tracks[index].title;
+            renderPlaylist();
+        }
+
+        function selectTrack(index) {
+            clearTimeout(nextTrackTimeout);
+            loadTrack(index);
+            if (isPlaying) {
+                bgmPlayer.play().catch(()=>{});
+            } else {
+                togglePlayPause();
+            }
+        }
+
+        function togglePlayPause() {
+            clearTimeout(nextTrackTimeout);
+            const btn = document.getElementById('btn-play-pause');
+            const triggerBtn = document.getElementById('bgm-btn');
+            const icon = document.getElementById('bgm-icon');
+
+            if (!isPlaying) {
+                bgmPlayer.play().then(() => {
+                    isPlaying = true;
+                    btn.innerText = 'PAUSE';
+                    triggerBtn.classList.add('playing');
+                    icon.innerText = 'BGM ON';
+                    document.getElementById('current-track-title').innerText = tracks[currentTrackIndex].title;
+                }).catch(err => {
+                    alert('音楽ファイルが読み込めないか見つかりません。');
+                });
+            } else {
+                bgmPlayer.pause();
+                isPlaying = false;
+                btn.innerText = 'PLAY';
+                triggerBtn.classList.remove('playing');
+                icon.innerText = 'BGM';
+            }
+        }
+
+        function nextTrack() {
+            clearTimeout(nextTrackTimeout);
+            let nextIndex = currentTrackIndex + 1;
+            if (nextIndex >= tracks.length) nextIndex = 0;
+            loadTrack(nextIndex);
+            if (isPlaying) bgmPlayer.play().catch(()=>{});
+        }
+
+        function prevTrack() {
+            clearTimeout(nextTrackTimeout);
+            let prevIndex = currentTrackIndex - 1;
+            if (prevIndex < 0) prevIndex = tracks.length - 1;
+            loadTrack(prevIndex);
+            if (isPlaying) bgmPlayer.play().catch(()=>{});
+        }
+
+        function toggleRepeatMode() {
+            const btn = document.getElementById('btn-repeat');
+            if (repeatMode === 'all') {
+                repeatMode = 'one';
+                btn.innerText = 'LOOP ONE';
+                btn.classList.add('active');
+            } else {
+                repeatMode = 'all';
+                btn.innerText = 'LOOP ALL';
+                btn.classList.remove('active');
+            }
+        }
+
+        function playChimeSound() {
+            alarmPlayer.currentTime = 0;
+            alarmPlayer.volume = 0.8; 
+            alarmPlayer.play().catch(e => console.log("アラーム再生制限対策"));
+        }
 
         function getTodayString() {
             const d = new Date();
@@ -441,146 +456,96 @@
 
         function displayTodayRecord() {
             const todayStr = getTodayString();
-            const savedDate = localStorage.getItem('study_date');
-            
-            if (savedDate !== todayStr) {
+            if (localStorage.getItem('study_date') !== todayStr) {
                 localStorage.setItem('study_date', todayStr);
                 localStorage.setItem('study_today_minutes', '0');
             }
-
             const todayMinutes = parseFloat(localStorage.getItem('study_today_minutes') || '0');
             document.getElementById('today-record-time').innerText = todayMinutes.toFixed(1) + '分';
         }
 
         function saveStudyTime(seconds) {
             if (seconds <= 0) return;
-            displayTodayRecord();
-
-            const minutesEarned = seconds / 60;
             const currentTotal = parseFloat(localStorage.getItem('study_today_minutes') || '0');
-            localStorage.setItem('study_today_minutes', currentTotal + minutesEarned);
+            localStorage.setItem('study_today_minutes', currentTotal + (seconds / 60));
             displayTodayRecord();
-        }
-
-        function playPipSound() {
-            initAudio(); 
-            soundPulse(0); soundPulse(0.12);
-            soundPulse(0.4); soundPulse(0.52);
-            soundPulse(0.8); soundPulse(0.92);
-        }
-
-        function soundPulse(delayTime) {
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            osc.type = 'sine'; 
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime + delayTime); 
-            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delayTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delayTime + 0.09);
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            osc.start(audioCtx.currentTime + delayTime);
-            osc.stop(audioCtx.currentTime + delayTime + 0.1);
         }
 
         function adjustMinutes(amount) {
             currentCustomMinutes += amount;
             if (currentCustomMinutes < 1) currentCustomMinutes = 1;
-            if (currentCustomMinutes > 999) currentCustomMinutes = 999;
             document.getElementById('custom-minutes-display').innerText = currentCustomMinutes;
         }
 
         function changeScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
-            
             document.body.classList.remove('cute-alarm-bg');
             document.getElementById('timer-box').classList.remove('cute-poyo');
             document.getElementById('alarm-banner').style.display = 'none';
+            
+            // 画面を戻す時は一応背景をデフォルトにリセット(ポモドーロ終了・中断対策)
+            if (screenId === 'screen-main' || screenId === 'screen-self-select') {
+                document.body.classList.remove('rest-mode-bg');
+            }
         }
 
         function formatTime(seconds) {
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
             const s = seconds % 60;
-            const hStr = h > 0 ? String(h).padStart(2, '0') + ':' : '';
-            const mStr = String(m).padStart(2, '0');
-            const sStr = String(s).padStart(2, '0');
-            return `${hStr}${mStr}:${sStr}`;
+            return `${h > 0 ? String(h).padStart(2,'0')+':' : ''}${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
         function updateDisplay() {
             document.getElementById('timer-text').innerText = formatTime(totalSeconds);
         }
 
-        // 1. 授業記録モード 開始
         function startClassTimer(minutes) {
-            initAudio(); 
             currentMode = 'class';
             totalSeconds = minutes * 60;
-            elapsedSecondsInSession = 0;
-            isPaused = false;
-            
+            elapsedSecondsInSession = 0; isPaused = false;
             document.getElementById('timer-status').innerText = '授業記録';
             document.getElementById('pomo-cycle').style.display = 'none';
-            document.getElementById('btn-pause').style.display = 'inline-block';
-            document.getElementById('btn-pause').innerText = '一時停止';
-            
-            updateDisplay();
-            changeScreen('screen-timer');
+            updateDisplay(); changeScreen('screen-timer');
             
             timerInterval = setInterval(() => {
                 if (!isPaused) {
-                    if (totalSeconds > 0) {
-                        totalSeconds--;
-                        elapsedSecondsInSession++;
-                        updateDisplay();
-                    } else {
-                        clearInterval(timerInterval);
-                        triggerAlarmEffect();
-                    }
+                    if (totalSeconds > 0) { totalSeconds--; elapsedSecondsInSession++; updateDisplay(); }
+                    else { clearInterval(timerInterval); triggerAlarmEffect(); }
                 }
             }, 1000);
         }
 
-        // 2. 自習：ポモドーロモード 開始
         function startPomodoro() {
-            initAudio(); 
             currentMode = 'pomodoro-work';
-            totalSeconds = 25 * 60; 
-            elapsedSecondsInSession = 0;
-            isPaused = false;
-            pomodoroCycle = 1;
-
+            totalSeconds = 25 * 60;
+            elapsedSecondsInSession = 0; isPaused = false; pomodoroCycle = 1;
+            
+            document.body.classList.remove('rest-mode-bg'); // 勉強時間：通常背景
             document.getElementById('timer-status').innerText = 'ポモドーロ：集中タイム';
             document.getElementById('pomo-cycle').style.display = 'block';
             document.getElementById('pomo-cycle').querySelector('span').innerText = pomodoroCycle;
-            document.getElementById('btn-pause').style.display = 'inline-block';
-            document.getElementById('btn-pause').innerText = '一時停止';
-
-            updateDisplay();
-            changeScreen('screen-timer');
-
+            updateDisplay(); changeScreen('screen-timer');
             runPomodoroTimer();
         }
 
         function runPomodoroTimer() {
             if(timerInterval) clearInterval(timerInterval);
-
             timerInterval = setInterval(() => {
                 if (!isPaused) {
                     if (totalSeconds > 0) {
                         totalSeconds--;
-                        if (currentMode === 'pomodoro-work') {
-                            elapsedSecondsInSession++;
-                        }
+                        if (currentMode === 'pomodoro-work') elapsedSecondsInSession++;
                         updateDisplay();
                     } else {
                         clearInterval(timerInterval);
                         
                         if (currentMode === 'pomodoro-work') {
-                            playPipSound();
+                            playChimeSound(); // 25分終了（風鈴）
+                            
+                            document.body.classList.add('rest-mode-bg'); // 休憩開始：薄い水色に変更
+                            
                             document.getElementById('alarm-banner').innerText = 'おつかれさま！5分休憩してね';
                             document.body.classList.add('cute-alarm-bg');
                             document.getElementById('timer-box').classList.add('cute-poyo');
@@ -594,90 +559,58 @@
                                 currentMode = 'pomodoro-rest';
                                 totalSeconds = 5 * 60; 
                                 document.getElementById('timer-status').innerText = 'ポモドーロ：休憩タイム';
-                                updateDisplay();
-                                runPomodoroTimer();
+                                updateDisplay(); runPomodoroTimer();
                             }, 4000);
-
-                        } else if (currentMode === 'pomodoro-rest') {
+                        } else {
+                            playChimeSound(); // 5分休憩終了（風鈴）
+                            
+                            document.body.classList.remove('rest-mode-bg'); // 勉強時間再開：元の背景色に戻す
+                            
                             pomodoroCycle++;
                             currentMode = 'pomodoro-work';
                             totalSeconds = 25 * 60;
                             document.getElementById('timer-status').innerText = 'ポモドーロ：集中タイム';
                             document.getElementById('pomo-cycle').querySelector('span').innerText = pomodoroCycle;
-                            updateDisplay();
-                            runPomodoroTimer();
+                            updateDisplay(); runPomodoroTimer();
                         }
                     }
                 }
             }, 1000);
         }
 
-        // 3. 自習：ストップウォッチモード 開始
         function startStopwatch() {
-            initAudio();
             currentMode = 'stopwatch';
-            totalSeconds = 0;
-            elapsedSecondsInSession = 0;
-            isPaused = false;
-
+            totalSeconds = 0; elapsedSecondsInSession = 0; isPaused = false;
             document.getElementById('timer-status').innerText = 'ストップウォッチ（自習）';
             document.getElementById('pomo-cycle').style.display = 'none';
-            document.getElementById('btn-pause').style.display = 'inline-block';
-            document.getElementById('btn-pause').innerText = '一時停止';
-
-            updateDisplay();
-            changeScreen('screen-timer');
-
+            updateDisplay(); changeScreen('screen-timer');
             timerInterval = setInterval(() => {
-                if (!isPaused) {
-                    totalSeconds++;
-                    elapsedSecondsInSession++;
-                    updateDisplay();
-                }
+                if (!isPaused) { totalSeconds++; elapsedSecondsInSession++; updateDisplay(); }
             }, 1000);
         }
 
-        // 4. 自習：カスタムタイマーモード 開始
         function startCustomTimer() {
-            initAudio(); 
             currentMode = 'custom';
             totalSeconds = currentCustomMinutes * 60;
-            elapsedSecondsInSession = 0;
-            isPaused = false;
-
+            elapsedSecondsInSession = 0; isPaused = false;
             document.getElementById('timer-status').innerText = 'カスタムタイマー';
             document.getElementById('pomo-cycle').style.display = 'none';
-            document.getElementById('btn-pause').style.display = 'inline-block';
-            document.getElementById('btn-pause').innerText = '一時停止';
-
-            updateDisplay();
-            changeScreen('screen-timer');
-
+            updateDisplay(); changeScreen('screen-timer');
             timerInterval = setInterval(() => {
                 if (!isPaused) {
-                    if (totalSeconds > 0) {
-                        totalSeconds--;
-                        elapsedSecondsInSession++;
-                        updateDisplay();
-                    } else {
-                        clearInterval(timerInterval);
-                        triggerAlarmEffect();
-                    }
+                    if (totalSeconds > 0) { totalSeconds--; elapsedSecondsInSession++; updateDisplay(); }
+                    else { clearInterval(timerInterval); triggerAlarmEffect(); }
                 }
             }, 1000);
         }
 
         function triggerAlarmEffect() {
-            playPipSound(); 
-
+            playChimeSound(); 
             document.getElementById('alarm-banner').innerText = 'おつかれさま！時間になりました';
-            document.body.classList.add('cute-alarm-bg'); 
-            document.getElementById('timer-box').classList.add('cute-poyo'); 
+            document.body.classList.add('cute-alarm-bg');
+            document.getElementById('timer-box').classList.add('cute-poyo');
             document.getElementById('alarm-banner').style.display = 'block';
-            
-            setTimeout(() => {
-                stopTimer();
-            }, 4000);
+            setTimeout(() => { stopTimer(); }, 4000);
         }
 
         function togglePause() {
@@ -686,12 +619,10 @@
         }
 
         function stopTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            
+            clearInterval(timerInterval); timerInterval = null;
             saveStudyTime(elapsedSecondsInSession);
             elapsedSecondsInSession = 0;
-
+            document.body.classList.remove('rest-mode-bg'); // タイマー終了時は背景色を必ずリセット
             changeScreen('screen-main');
         }
     </script>
