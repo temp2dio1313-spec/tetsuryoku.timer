@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ふんわり勉強タイマー</title>
+    <!-- Bauer Bodoniに近い雰囲気を持つ、Google FontsのBodoni Modaを読み込み（数字用） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -33,6 +34,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: background-color 0.5s ease;
         }
 
         /* 画面共通スタイル */
@@ -50,7 +52,7 @@
             pointer-events: none;
             transition: opacity 0.5s ease, transform 0.5s ease;
             transform: scale(0.95);
-            background-color: var(--bg-color);
+            background-color: transparent;
             padding: 20px;
         }
 
@@ -79,7 +81,7 @@
             color: #8a736a;
         }
 
-        /* 記録表示エリア */
+        /* 記録表示エリア（今日の勉強時間） */
         .record-box {
             background-color: #ffffff;
             border: 1px dashed var(--main-pink);
@@ -150,7 +152,7 @@
             color: white;
         }
 
-        /* 三角形で時間を増減させるデザイン（自習タイマー用） */
+        /* 三角形ボタンのコンテナ */
         .spinner-container {
             display: flex;
             align-items: center;
@@ -204,6 +206,14 @@
         }
 
         /* タイマー表示 */
+        .timer-container-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         .timer-display {
             font-family: var(--font-number);
             font-size: 6rem;
@@ -231,49 +241,45 @@
             font-weight: bold;
         }
 
-        /* 画面揺れエフェクト（アラーム用） */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(0deg); }
+        /* ✨ 新しいぽよぽよ・ふわふわアラームエフェクト */
+        @keyframes soft-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08) translateY(-10px); }
         }
 
-        .shaking {
-            animation: shake 0.5s;
-            animation-iteration-count: infinite;
-            background-color: #ffe5ec !important;
+        .cute-alarm-bg {
+            background-color: #fff0f3 !important; /* 画面全体がふわっと淡いピンクに */
+        }
+
+        .cute-poyo {
+            animation: soft-bounce 0.8s infinite ease-in-out;
         }
 
         .alarm-overlay {
             display: none;
             position: absolute;
-            top: 10%;
+            top: 12%;
             background: #ffb5a7;
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 12px 28px;
+            border-radius: 25px;
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            animation: shake 0.5s infinite;
+            font-size: 1.05rem;
+            box-shadow: 0 8px 20px rgba(251, 181, 167, 0.4);
+            letter-spacing: 0.05em;
         }
     </style>
 </head>
 <body>
 
+    <!-- 1. メインメニュー画面 -->
     <div id="screen-main" class="screen active">
         <h1>Study Room</h1>
         <p>今日も自分のペースで、心地よく。</p>
         
+        <!-- 「今日の勉強時間」を表示 -->
         <div class="record-box">
-            これまでの勉強時間: <span id="total-record-time">0分</span>
+            今日の勉強時間: <span id="today-record-time">0分</span>
         </div>
 
         <div class="btn-container">
@@ -282,6 +288,7 @@
         </div>
     </div>
 
+    <!-- 2. 授業記録：時間選択画面 -->
     <div id="screen-class-select" class="screen">
         <h2>授業時間をえらぶ</h2>
         <div class="grid-buttons">
@@ -293,6 +300,7 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3. 自習：モード選択画面 -->
     <div id="screen-self-select" class="screen">
         <h2>自習スタイルをえらぶ</h2>
         <div class="btn-container">
@@ -303,6 +311,7 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3.5 自習：カスタムタイマー時間設定画面 -->
     <div id="screen-custom-timer-set" class="screen">
         <h2>タイマー時間をセット</h2>
         
@@ -321,59 +330,113 @@
         <button class="secondary" onclick="changeScreen('screen-self-select')">もどる</button>
     </div>
 
+    <!-- 4. タイマー・ストップウォッチ作動全画面 -->
     <div id="screen-timer" class="screen">
         <div id="alarm-banner" class="alarm-overlay">おつかれさま！時間になりました</div>
-        <div id="timer-status" class="status-badge">授業記録</div>
-        <div id="pomo-cycle" class="cycle-count" style="display: none;">ただいま <span>1</span> サイクル目</div>
-        <div id="timer-text" class="timer-display">00:00:00</div>
         
-        <div class="btn-container" style="flex-direction: row; justify-content: center;">
+        <!-- エフェクトをかけるためにラップ -->
+        <div id="timer-box" class="timer-container-box">
+            <div id="timer-status" class="status-badge">授業記録</div>
+            <div id="pomo-cycle" class="cycle-count" style="display: none;">ただいま <span>1</span> サイクル目</div>
+            <div id="timer-text" class="timer-display">00:00:00</div>
+        </div>
+        
+        <div class="btn-container" style="flex-direction: row; justify-content: center; z-index: 10;">
             <button id="btn-pause" onclick="togglePause()">一時停止</button>
             <button id="btn-stop" class="secondary" style="margin-top:0;" onclick="stopTimer()">終了する</button>
         </div>
     </div>
 
     <script>
-        // タイマー制御用の変数
         let timerInterval = null;
         let totalSeconds = 0;
         let elapsedSecondsInSession = 0; 
         let isPaused = false;
         let currentMode = ''; 
         let pomodoroCycle = 1;
-        
-        // カスタムタイマーの現在の設定値（初期値10分）
         let currentCustomMinutes = 10;
 
+        // オーディオコンテキスト（優しいピピッ音を生成用）
+        let audioCtx = null;
+
         window.onload = function() {
-            displayTotalRecord();
+            displayTodayRecord();
         };
 
-        function displayTotalRecord() {
-            const totalMinutes = parseFloat(localStorage.getItem('study_total_minutes') || '0');
-            document.getElementById('total-record-time').innerText = totalMinutes.toFixed(1) + '分';
+        // 今日を表す日付文字列を取得 (YYYY-MM-DD)
+        function getTodayString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
+        // 今日の勉強時間を表示（日付が変わっていたらリセット）
+        function displayTodayRecord() {
+            const todayStr = getTodayString();
+            const savedDate = localStorage.getItem('study_date');
+            
+            if (savedDate !== todayStr) {
+                // 日付が新しい、または記録がなければ今日を0分に初期化
+                localStorage.setItem('study_date', todayStr);
+                localStorage.setItem('study_today_minutes', '0');
+            }
+
+            const todayMinutes = parseFloat(localStorage.getItem('study_today_minutes') || '0');
+            document.getElementById('today-record-time').innerText = todayMinutes.toFixed(1) + '分';
+        }
+
+        // 今日の勉強時間に加算
         function saveStudyTime(seconds) {
             if (seconds <= 0) return;
+            displayTodayRecord(); // 保存前に日付チェック
+
             const minutesEarned = seconds / 60;
-            const currentTotal = parseFloat(localStorage.getItem('study_total_minutes') || '0');
-            localStorage.setItem('study_total_minutes', currentTotal + minutesEarned);
-            displayTotalRecord();
+            const currentTotal = parseFloat(localStorage.getItem('study_today_minutes') || '0');
+            localStorage.setItem('study_today_minutes', currentTotal + minutesEarned);
+            displayTodayRecord();
         }
 
-        // カスタムタイマーの時間を増減させるロジック
+        // 優しい「ピピッ」音（短い高音）を鳴らす関数
+        function playPipSound() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // 1回目の「ピピッ」
+            soundPulse(0);
+            soundPulse(0.12);
+
+            // 2回目の「ピピッ」 (0.4秒後)
+            soundPulse(0.4);
+            soundPulse(0.52);
+
+            // 3回目の「ピピッ」 (0.8秒後)
+            soundPulse(0.8);
+            soundPulse(0.92);
+        }
+
+        // 短いビープ音のパルスを作るサブ関数
+        function soundPulse(delayTime) {
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.type = 'sine'; // 優しい丸みのあるサイン波
+            osc.frequency.setValueAtTime(1500, audioCtx.currentTime + delayTime); // 高めの可愛いピピッ音
+
+            // 音の強弱（プチッと切れないよう滑らかに消す）
+            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime + delayTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delayTime + 0.08);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.start(audioCtx.currentTime + delayTime);
+            osc.stop(audioCtx.currentTime + delayTime + 0.09);
+        }
+
         function adjustMinutes(amount) {
             currentCustomMinutes += amount;
-            // 1分未満にならないようにガード
-            if (currentCustomMinutes < 1) {
-                currentCustomMinutes = 1;
-            }
-            // 999分を超えないようにガード
-            if (currentCustomMinutes > 999) {
-                currentCustomMinutes = 999;
-            }
-            // 画面の数字表示を更新
+            if (currentCustomMinutes < 1) currentCustomMinutes = 1;
+            if (currentCustomMinutes > 999) currentCustomMinutes = 999;
             document.getElementById('custom-minutes-display').innerText = currentCustomMinutes;
         }
 
@@ -383,7 +446,9 @@
             });
             document.getElementById(screenId).classList.add('active');
             
-            document.getElementById('screen-timer').classList.remove('shaking');
+            // エフェクトのクリーンアップ
+            document.body.classList.remove('cute-alarm-bg');
+            document.getElementById('timer-box').classList.remove('cute-poyo');
             document.getElementById('alarm-banner').style.display = 'none';
         }
 
@@ -391,11 +456,9 @@
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
             const s = seconds % 60;
-
             const hStr = h > 0 ? String(h).padStart(2, '0') + ':' : '';
             const mStr = String(m).padStart(2, '0');
             const sStr = String(s).padStart(2, '0');
-
             return `${hStr}${mStr}:${sStr}`;
         }
 
@@ -467,12 +530,16 @@
                         clearInterval(timerInterval);
                         
                         if (currentMode === 'pomodoro-work') {
+                            // ポモドーロ25分終了時のかわいいエフェクトと音
+                            playPipSound();
                             document.getElementById('alarm-banner').innerText = 'おつかれさま！5分休憩してね';
-                            document.getElementById('screen-timer').classList.add('shaking');
+                            document.body.classList.add('cute-alarm-bg');
+                            document.getElementById('timer-box').classList.add('cute-poyo');
                             document.getElementById('alarm-banner').style.display = 'block';
                             
                             setTimeout(() => {
-                                document.getElementById('screen-timer').classList.remove('shaking');
+                                document.body.classList.remove('cute-alarm-bg');
+                                document.getElementById('timer-box').classList.remove('cute-poyo');
                                 document.getElementById('alarm-banner').style.display = 'none';
                                 
                                 currentMode = 'pomodoro-rest';
@@ -520,7 +587,7 @@
             }, 1000);
         }
 
-        // 4. 自習：カスタムタイマーモード 開始（選択した値をそのまま適用）
+        // 4. 自習：カスタムタイマーモード 開始
         function startCustomTimer() {
             currentMode = 'custom';
             totalSeconds = currentCustomMinutes * 60;
@@ -549,10 +616,13 @@
             }, 1000);
         }
 
-        // アラームエフェクト発動ロジック
+        // 新しいかわいいアラームエフェクト（共通）
         function triggerAlarmEffect() {
+            playPipSound(); // 優しい音を3回鳴らす
+
             document.getElementById('alarm-banner').innerText = 'おつかれさま！時間になりました';
-            document.getElementById('screen-timer').classList.add('shaking');
+            document.body.classList.add('cute-alarm-bg'); // 全体がピンクの優しい光に包まれる
+            document.getElementById('timer-box').classList.add('cute-poyo'); // 中央がぽよぽよ跳ねる
             document.getElementById('alarm-banner').style.display = 'block';
             
             setTimeout(() => {
