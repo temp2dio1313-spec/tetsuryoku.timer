@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ふんわり勉強タイマー</title>
-    <!-- Bauer Bodoniに近い雰囲気を持つ、Google FontsのBodoni Modaを読み込み（数字用） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -35,6 +34,43 @@
             justify-content: center;
             align-items: center;
             transition: background-color 0.5s ease;
+            position: relative;
+        }
+
+        /* 🎵 音楽切り替えボタン（右上に配置） */
+        .bgm-controller {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100; /* 一番手前に表示 */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #ffffff;
+            border: 2px solid var(--sub-cream);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(243, 224, 211, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+        .bgm-controller:hover {
+            border-color: var(--main-pink);
+            transform: translateY(-1px);
+        }
+        .bgm-icon {
+            font-size: 1.1rem;
+        }
+        .bgm-text {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        /* 再生中のふわふわ光るエフェクト */
+        .bgm-controller.playing {
+            background-color: var(--sub-cream);
+            border-color: var(--main-pink);
         }
 
         /* 画面共通スタイル */
@@ -81,7 +117,6 @@
             color: #8a736a;
         }
 
-        /* 記録表示エリア（今日の勉強時間） */
         .record-box {
             background-color: #ffffff;
             border: 1px dashed var(--main-pink);
@@ -100,7 +135,6 @@
             margin: 0 4px;
         }
 
-        /* ボタンデザイン */
         .btn-container {
             display: flex;
             flex-direction: column;
@@ -152,7 +186,6 @@
             color: white;
         }
 
-        /* 三角形ボタンのコンテナ */
         .spinner-container {
             display: flex;
             align-items: center;
@@ -205,7 +238,6 @@
             box-shadow: none;
         }
 
-        /* タイマー表示 */
         .timer-container-box {
             display: flex;
             flex-direction: column;
@@ -241,14 +273,13 @@
             font-weight: bold;
         }
 
-        /* ✨ 新しいぽよぽよ・ふわふわアラームエフェクト */
         @keyframes soft-bounce {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.08) translateY(-10px); }
         }
 
         .cute-alarm-bg {
-            background-color: #fff0f3 !important; /* 画面全体がふわっと淡いピンクに */
+            background-color: #fff0f3 !important;
         }
 
         .cute-poyo {
@@ -272,12 +303,17 @@
 </head>
 <body>
 
-    <!-- 1. メインメニュー画面 -->
+    <audio id="bgm-player" src="music1.mp3" loop></audio>
+
+    <div id="bgm-btn" class="bgm-controller" onclick="toggleBGM()">
+        <span id="bgm-icon" class="bgm-icon">🎵</span>
+        <span id="bgm-text" class="bgm-text">Music: OFF</span>
+    </div>
+
     <div id="screen-main" class="screen active">
         <h1>Study Room</h1>
         <p>今日も自分のペースで、心地よく。</p>
         
-        <!-- 「今日の勉強時間」を表示 -->
         <div class="record-box">
             今日の勉強時間: <span id="today-record-time">0分</span>
         </div>
@@ -288,7 +324,6 @@
         </div>
     </div>
 
-    <!-- 2. 授業記録：時間選択画面 -->
     <div id="screen-class-select" class="screen">
         <h2>授業時間をえらぶ</h2>
         <div class="grid-buttons">
@@ -300,7 +335,6 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
-    <!-- 3. 自習：モード選択画面 -->
     <div id="screen-self-select" class="screen">
         <h2>自習スタイルをえらぶ</h2>
         <div class="btn-container">
@@ -311,7 +345,6 @@
         <button class="secondary" onclick="changeScreen('screen-main')">もどる</button>
     </div>
 
-    <!-- 3.5 自習：カスタムタイマー時間設定画面 -->
     <div id="screen-custom-timer-set" class="screen">
         <h2>タイマー時間をセット</h2>
         
@@ -330,11 +363,9 @@
         <button class="secondary" onclick="changeScreen('screen-self-select')">もどる</button>
     </div>
 
-    <!-- 4. タイマー・ストップウォッチ作動全画面 -->
     <div id="screen-timer" class="screen">
         <div id="alarm-banner" class="alarm-overlay">おつかれさま！時間になりました</div>
         
-        <!-- エフェクトをかけるためにラップ -->
         <div id="timer-box" class="timer-container-box">
             <div id="timer-status" class="status-badge">授業記録</div>
             <div id="pomo-cycle" class="cycle-count" style="display: none;">ただいま <span>1</span> サイクル目</div>
@@ -356,26 +387,63 @@
         let pomodoroCycle = 1;
         let currentCustomMinutes = 10;
 
-        // オーディオコンテキスト（優しいピピッ音を生成用）
+        // オーディオ（アラーム音用）
         let audioCtx = null;
+        
+        // 🎵 BGM再生・停止フラグ
+        let isBGMPlaying = false;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // 🎵 BGMのオンオフ切り替え
+        function toggleBGM() {
+            initAudio(); // アラームの準備も同時に行う
+            const player = document.getElementById('bgm-player');
+            const btn = document.getElementById('bgm-btn');
+            const icon = document.getElementById('bgm-icon');
+            const text = document.getElementById('bgm-text');
+
+            if (!isBGMPlaying) {
+                // 再生する
+                player.play().then(() => {
+                    isBGMPlaying = true;
+                    btn.classList.add('playing');
+                    icon.innerText = '🎶';
+                    text.innerText = 'Music: ON';
+                }).catch(err => {
+                    alert('音楽ファイル「music1.mp3」が見つからないか、ブラウザにブロックされました。ファイルを同じフォルダに置いてみてください。');
+                });
+            } else {
+                // 停止する
+                player.pause();
+                isBGMPlaying = false;
+                btn.classList.remove('playing');
+                icon.innerText = '🎵';
+                text.innerText = 'Music: OFF';
+            }
+        }
 
         window.onload = function() {
             displayTodayRecord();
         };
 
-        // 今日を表す日付文字列を取得 (YYYY-MM-DD)
         function getTodayString() {
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
 
-        // 今日の勉強時間を表示（日付が変わっていたらリセット）
         function displayTodayRecord() {
             const todayStr = getTodayString();
             const savedDate = localStorage.getItem('study_date');
             
             if (savedDate !== todayStr) {
-                // 日付が新しい、または記録がなければ今日を0分に初期化
                 localStorage.setItem('study_date', todayStr);
                 localStorage.setItem('study_today_minutes', '0');
             }
@@ -384,10 +452,9 @@
             document.getElementById('today-record-time').innerText = todayMinutes.toFixed(1) + '分';
         }
 
-        // 今日の勉強時間に加算
         function saveStudyTime(seconds) {
             if (seconds <= 0) return;
-            displayTodayRecord(); // 保存前に日付チェック
+            displayTodayRecord();
 
             const minutesEarned = seconds / 60;
             const currentTotal = parseFloat(localStorage.getItem('study_today_minutes') || '0');
@@ -395,42 +462,24 @@
             displayTodayRecord();
         }
 
-        // 優しい「ピピッ」音（短い高音）を鳴らす関数
         function playPipSound() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            
-            // 1回目の「ピピッ」
-            soundPulse(0);
-            soundPulse(0.12);
-
-            // 2回目の「ピピッ」 (0.4秒後)
-            soundPulse(0.4);
-            soundPulse(0.52);
-
-            // 3回目の「ピピッ」 (0.8秒後)
-            soundPulse(0.8);
-            soundPulse(0.92);
+            initAudio(); 
+            soundPulse(0); soundPulse(0.12);
+            soundPulse(0.4); soundPulse(0.52);
+            soundPulse(0.8); soundPulse(0.92);
         }
 
-        // 短いビープ音のパルスを作るサブ関数
         function soundPulse(delayTime) {
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-
-            osc.type = 'sine'; // 優しい丸みのあるサイン波
-            osc.frequency.setValueAtTime(1500, audioCtx.currentTime + delayTime); // 高めの可愛いピピッ音
-
-            // 音の強弱（プチッと切れないよう滑らかに消す）
-            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime + delayTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delayTime + 0.08);
-
+            osc.type = 'sine'; 
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime + delayTime); 
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime + delayTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delayTime + 0.09);
             osc.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-
             osc.start(audioCtx.currentTime + delayTime);
-            osc.stop(audioCtx.currentTime + delayTime + 0.09);
+            osc.stop(audioCtx.currentTime + delayTime + 0.1);
         }
 
         function adjustMinutes(amount) {
@@ -446,7 +495,6 @@
             });
             document.getElementById(screenId).classList.add('active');
             
-            // エフェクトのクリーンアップ
             document.body.classList.remove('cute-alarm-bg');
             document.getElementById('timer-box').classList.remove('cute-poyo');
             document.getElementById('alarm-banner').style.display = 'none';
@@ -468,6 +516,7 @@
 
         // 1. 授業記録モード 開始
         function startClassTimer(minutes) {
+            initAudio(); 
             currentMode = 'class';
             totalSeconds = minutes * 60;
             elapsedSecondsInSession = 0;
@@ -497,6 +546,7 @@
 
         // 2. 自習：ポモドーロモード 開始
         function startPomodoro() {
+            initAudio(); 
             currentMode = 'pomodoro-work';
             totalSeconds = 25 * 60; 
             elapsedSecondsInSession = 0;
@@ -530,7 +580,6 @@
                         clearInterval(timerInterval);
                         
                         if (currentMode === 'pomodoro-work') {
-                            // ポモドーロ25分終了時のかわいいエフェクトと音
                             playPipSound();
                             document.getElementById('alarm-banner').innerText = 'おつかれさま！5分休憩してね';
                             document.body.classList.add('cute-alarm-bg');
@@ -565,6 +614,7 @@
 
         // 3. 自習：ストップウォッチモード 開始
         function startStopwatch() {
+            initAudio();
             currentMode = 'stopwatch';
             totalSeconds = 0;
             elapsedSecondsInSession = 0;
@@ -589,6 +639,7 @@
 
         // 4. 自習：カスタムタイマーモード 開始
         function startCustomTimer() {
+            initAudio(); 
             currentMode = 'custom';
             totalSeconds = currentCustomMinutes * 60;
             elapsedSecondsInSession = 0;
@@ -616,13 +667,12 @@
             }, 1000);
         }
 
-        // 新しいかわいいアラームエフェクト（共通）
         function triggerAlarmEffect() {
-            playPipSound(); // 優しい音を3回鳴らす
+            playPipSound(); 
 
             document.getElementById('alarm-banner').innerText = 'おつかれさま！時間になりました';
-            document.body.classList.add('cute-alarm-bg'); // 全体がピンクの優しい光に包まれる
-            document.getElementById('timer-box').classList.add('cute-poyo'); // 中央がぽよぽよ跳ねる
+            document.body.classList.add('cute-alarm-bg'); 
+            document.getElementById('timer-box').classList.add('cute-poyo'); 
             document.getElementById('alarm-banner').style.display = 'block';
             
             setTimeout(() => {
