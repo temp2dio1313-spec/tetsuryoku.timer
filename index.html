@@ -336,6 +336,43 @@
         .buy-btn:hover {
             box-shadow: none;
         }
+
+        /* 🔒 隠しコマンド用スタイル */
+        .secret-command-area {
+            background: #faf6f0;
+            border: 1px dashed #d3c4be;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .secret-input-row {
+            display: flex;
+            gap: 8px;
+        }
+        .secret-input {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            border: 1px solid #d3c4be;
+            border-radius: 20px;
+            outline: none;
+            font-family: var(--font-jp);
+        }
+        .secret-input:focus {
+            border-color: var(--main-pink);
+        }
+        .secret-btn {
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            border-radius: 20px;
+            box-shadow: none;
+            background: var(--main-pink);
+            color: white;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -443,6 +480,14 @@
                 
                 <div class="shelf-title">たべもの</div>
                 <div id="shop-foods-list" class="items-grid"></div>
+                
+                <div class="shelf-title">ごほうびをもらう</div>
+                <div class="secret-command-area">
+                    <div class="secret-input-row">
+                        <input type="text" id="secret-code-input" class="secret-input" placeholder="ひみつのコトバを入力...">
+                        <button class="secret-btn" onclick="submitSecretCommand()">決定</button>
+                    </div>
+                </div>
             </div>
         </div>
         <button class="secondary" onclick="changeScreen('screen-main')">メインにもどる</button>
@@ -459,6 +504,10 @@
 
         // すたでぃポイント (SP) 管理
         let currentSP = parseFloat(localStorage.getItem('study_sp') || '0');
+        let isInfiniteSP = false; // 動作確認用の無限フラグ
+
+        // 隠しコマンドの使用履歴を保存
+        let usedCommands = JSON.parse(localStorage.getItem('study_used_commands') || '{"nenatta":false, "eraiko":false, "ganbatta":false}');
 
         // ショップの商品データ
         const shopItems = {
@@ -515,8 +564,13 @@
 
         // SPポイント表示更新
         function updateSPDisplay() {
-            document.getElementById('global-sp-display').innerText = Math.floor(currentSP);
-            localStorage.setItem('study_sp', currentSP.toString());
+            const displayEl = document.getElementById('global-sp-display');
+            if (isInfiniteSP) {
+                displayEl.innerText = "無制限";
+            } else {
+                displayEl.innerText = Math.floor(currentSP);
+                localStorage.setItem('study_sp', currentSP.toString());
+            }
         }
 
         // ショップの棚を組み立てる
@@ -550,24 +604,25 @@
         // ショップ画面を開く
         function openShopScreen() {
             changeScreen('screen-shop');
-            // アバターを初期状態に戻す
             document.getElementById('avatar-body').innerText = "(o^^o)";
             document.getElementById('avatar-speech').innerText = "なにか食べたいな…！";
+            document.getElementById('secret-code-input').value = '';
         }
 
         // アイテム購入とアバターリアクション
         let avatarTimeout = null;
         function buyItem(name, price) {
-            if (currentSP < price) {
+            if (!isInfiniteSP && currentSP < price) {
                 alert("SP（すたでぃポイント）が足りません。勉強して貯めましょう！");
                 return;
             }
 
-            // ポイント消費
-            currentSP -= price;
-            updateSPDisplay();
+            // 無制限状態でなければポイント消費
+            if (!isInfiniteSP) {
+                currentSP -= price;
+                updateSPDisplay();
+            }
 
-            // アバターリアクション決定
             const bodyEl = document.getElementById('avatar-body');
             const speechEl = document.getElementById('avatar-speech');
             
@@ -587,11 +642,85 @@
                 speechEl.innerText = `${name} もぐもぐ！美味しいよ、ありがとう！`;
             }
 
-            // 4秒後に元の状態へ戻る
             avatarTimeout = setTimeout(() => {
                 bodyEl.innerText = "(o^^o)";
                 speechEl.innerText = "次は何をくれるの？";
             }, 4000);
+        }
+
+        // 🔒 隠しコマンド処理
+        function submitSecretCommand() {
+            const inputEl = document.getElementById('secret-code-input');
+            const code = inputEl.value.trim();
+            
+            if (!code) return;
+
+            const bodyEl = document.getElementById('avatar-body');
+            const speechEl = document.getElementById('avatar-speech');
+            clearTimeout(avatarTimeout);
+
+            // 1回限りのごほうびコマンド判定
+            if (code === "ねなかった") {
+                if (usedCommands.nenatta) {
+                    alert("このコマンドはすでに1回使われています。");
+                } else {
+                    usedCommands.nenatta = true;
+                    localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
+                    if (!isInfiniteSP) currentSP += 1000;
+                    updateSPDisplay();
+                    bodyEl.innerText = "(*’▽’*)b";
+                    speechEl.innerText = "誘惑に負けずに起きてて本当にえらい！1000SPをあげるね！";
+                }
+            } 
+            else if (code === "えらいこ") {
+                if (usedCommands.eraiko) {
+                    alert("このコマンドはすでに1回使われています。");
+                } else {
+                    usedCommands.eraiko = true;
+                    localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
+                    if (!isInfiniteSP) currentSP += 1000;
+                    updateSPDisplay();
+                    bodyEl.innerText = "＼( ^▽^ )／";
+                    speechEl.innerText = "あなたは最高のえらいこ！いつも見てるよ。1000SPをどうぞ！";
+                }
+            } 
+            else if (code === "がんばった") {
+                if (usedCommands.ganbatta) {
+                    alert("このコマンドはすでに1回使われています。");
+                } else {
+                    usedCommands.ganbatta = true;
+                    localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
+                    if (!isInfiniteSP) currentSP += 1000;
+                    updateSPDisplay();
+                    bodyEl.innerText = " ＿〆(≧▽≦) ";
+                    speechEl.innerText = "本当にお疲れ様！努力の成果だね。1000SPを受け取って！";
+                }
+            }
+            // 🛠 管理者用コマンド（何度でも使える）
+            else if (code === "動作確認") {
+                isInfiniteSP = true;
+                updateSPDisplay();
+                bodyEl.innerText = "(￣▽￣)ゞ";
+                speechEl.innerText = "管理者モード：SPを【無制限】に切り替えました。";
+            } 
+            else if (code === "動作確認終了") {
+                isInfiniteSP = false;
+                currentSP = 0;
+                updateSPDisplay();
+                bodyEl.innerText = "=(￣□￣;)";
+                speechEl.innerText = "管理者モード終了：SPを【0】にリセットしました。";
+            } 
+            else {
+                alert("コトバが違うみたい。もう一度確かめてみてね。");
+                return;
+            }
+
+            inputEl.value = ''; // 入力欄をクリア
+            
+            avatarTimeout = setTimeout(() => {
+                bodyEl.innerText = "(o^^o)";
+                speechEl.innerText = "なにか食べたいな…！";
+            }, 6000);
         }
 
         // 🎵 ミュージックプレイヤー関連
@@ -677,7 +806,7 @@
                 btn.innerText = 'LOOP ONE';
                 btn.classList.add('active');
             } else {
-                repeatMode = 'all';
+                repeatMode === 'all';
                 btn.innerText = 'LOOP ALL';
                 btn.classList.remove('active');
             }
@@ -704,19 +833,19 @@
             document.getElementById('today-record-time').innerText = todayMinutes.toFixed(1) + '分';
         }
 
-        // タイマー終了時に勉強時間とSPポイントを同時に加算・セーブ
         function saveStudyTimeAndSP(seconds) {
             if (seconds <= 0) return;
             const minutesEarned = seconds / 60;
             
-            // 勉強時間を追加
             const currentTotalMinutes = parseFloat(localStorage.getItem('study_today_minutes') || '0');
             localStorage.setItem('study_today_minutes', currentTotalMinutes + minutesEarned);
             displayTodayRecord();
 
-            // 勉強時間(分) × 10 のすたでぃポイント(SP)を計算して加算
-            const pointsEarned = minutesEarned * 10;
-            currentSP += pointsEarned;
+            // 無制限状態でなければSP加算
+            if (!isInfiniteSP) {
+                const pointsEarned = minutesEarned * 10;
+                currentSP += pointsEarned;
+            }
             updateSPDisplay();
         }
 
@@ -791,8 +920,6 @@
                         
                         if (currentMode === 'pomodoro-work') {
                             playChimeSound(); 
-                            
-                            // 集中が終わったのでこのセッションの勉強時間とSPを一旦確定・加算
                             saveStudyTimeAndSP(elapsedSecondsInSession);
                             elapsedSecondsInSession = 0;
 
@@ -870,7 +997,6 @@
 
         function stopTimer() {
             clearInterval(timerInterval); timerInterval = null;
-            // 終了時に勉強した秒数に応じてSPと勉強時間を保存
             saveStudyTimeAndSP(elapsedSecondsInSession);
             elapsedSecondsInSession = 0;
             document.body.classList.remove('rest-mode-bg'); 
