@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ふんわり勉強タイマー & ミュージックプレイヤー</title>
     
+    <!-- Safari ホーム画面追加時のアイコン設定 -->
     <link rel="apple-touch-icon" href="IMG_1973.PNG">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -516,20 +517,27 @@
 </head>
 <body>
 
+    <!-- 共通所持SP表示カウント -->
     <div class="global-sp-counter">所持: <span id="global-sp-display">0</span> SP</div>
 
+    <!-- オーディオ要素 -->
     <audio id="bgm-player"></audio>
     <audio id="shop-player" src="shop.mp3" loop></audio>
     <audio id="alarm-player" src="huurin.mp3"></audio>
     
+    <!-- 効果音用プレイヤー -->
     <audio id="se-player"></audio>
     <audio id="avatar-se-player" src="abata.mp3"></audio>
-    <audio id="click-se-player" src="click.mp3"></audio> <div class="music-widget">
+    <audio id="click-se-player" src="click.mp3"></audio> <!-- ボタンクリック音用 -->
+
+    <!-- ミュージックウィジェット -->
+    <div class="music-widget">
         <div id="bgm-btn" class="bgm-trigger" onclick="playClickSE(); togglePlayerPanel()">
             <span id="bgm-icon">BGM</span>
             <span id="bgm-status-text">Menu</span>
         </div>
         
+        <!-- プレイヤー本体パネル -->
         <div id="player-panel" class="player-panel">
             <div class="track-info">
                 <div id="current-track-title" class="track-title">選択されていません</div>
@@ -549,6 +557,7 @@
         </div>
     </div>
 
+    <!-- 1. メインメニュー画面 -->
     <div id="screen-main" class="screen active">
         <h1>Study Room</h1>
         <p>今日も自分のペースで、心地よく。</p>
@@ -560,6 +569,7 @@
         </div>
     </div>
 
+    <!-- 2. 授業記録：時間選択画面 -->
     <div id="screen-class-select" class="screen">
         <h2>授業時間をえらぶ</h2>
         <div class="grid-buttons">
@@ -571,6 +581,7 @@
         <button class="secondary" onclick="playClickSE(); changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3. 自習：モード選択画面 -->
     <div id="screen-self-select" class="screen">
         <h2>自習スタイルをえらぶ</h2>
         <div class="btn-container">
@@ -581,6 +592,7 @@
         <button class="secondary" onclick="playClickSE(); changeScreen('screen-main')">もどる</button>
     </div>
 
+    <!-- 3.5 自習：カスタムタイマー時間設定画面 -->
     <div id="screen-custom-timer-set" class="screen">
         <h2>タイマー時間をセット</h2>
         <div class="spinner-container">
@@ -595,9 +607,11 @@
         <button class="secondary" onclick="playClickSE(); changeScreen('screen-self-select')">もどる</button>
     </div>
 
+    <!-- 4. タイマー作動全画面 -->
     <div id="screen-timer" class="screen">
         <div id="alarm-banner" class="alarm-overlay">おつかれさま！時間になりました</div>
         
+        <!-- カウントダウン演出レイヤー -->
         <div id="countdown-display" class="countdown-overlay">3</div>
 
         <div id="timer-box" class="timer-container-box">
@@ -606,15 +620,18 @@
             <div id="timer-text" class="timer-display">00:00:00</div>
         </div>
         
+        <!-- 操作部コンテナ（カウントダウン中は隠す） -->
         <div id="timer-controls-container" class="btn-container" style="flex-direction: row; justify-content: center; z-index: 10;">
             <button id="btn-pause" onclick="playClickSE(); togglePause()">一時停止</button>
             <button id="btn-stop" class="secondary" style="margin-top:0;" onclick="playClickSE(); stopTimer()">終了する</button>
         </div>
     </div>
 
+    <!-- 5. ショップ画面 -->
     <div id="screen-shop" class="screen">
         <h2>すたでぃショップ</h2>
         <div class="shop-layout">
+            <!-- アバターエリア（クリック音なし、専用SEのみ） -->
             <div class="avatar-area" onclick="tapAvatar()">
                 <div id="avatar-wrapper" class="avatar-body-wrapper">
                     <div id="avatar-character" class="avatar-character">
@@ -630,6 +647,7 @@
                 </div>
             </div>
             
+            <!-- 商品の棚（クリック音なし、専用演出のみ） -->
             <div class="shop-shelves">
                 <div class="shelf-title">のみもの</div>
                 <div id="shop-drinks-list" class="items-grid"></div>
@@ -637,6 +655,7 @@
                 <div class="shelf-title">たべもの</div>
                 <div id="shop-foods-list" class="items-grid"></div>
                 
+                <!-- ごほうびをもらう（隠しコマンドエリア） -->
                 <div class="shelf-title">ごほうびをもらう</div>
                 <div class="secret-command-area">
                     <div class="secret-input-row">
@@ -646,6 +665,7 @@
                 </div>
             </div>
         </div>
+        <!-- ショップを抜けるボタンにはクリック音をつける -->
         <button class="secondary" onclick="playClickSE(); closeShopScreen()">メインにもどる</button>
     </div>
 
@@ -691,6 +711,10 @@
         let isPlaying = false;
         let repeatMode = 'all'; 
         let nextTrackTimeout = null;
+
+        // アバター制御用のタイムアウト管理用変数を宣言
+        let avatarTimeout = null;
+        let avatarTapTimeout = null;
 
         const bgmPlayer = document.getElementById('bgm-player');
         const shopPlayer = document.getElementById('shop-player');
@@ -881,7 +905,6 @@
             }, 3000);
         }
 
-        let avatarTimeout = null;
         function buyItem(name, price) {
             if (!isInfiniteSP && currentSP < price) {
                 alert("SP（すたでぃポイント）が足りません。勉強して貯めましょう！");
