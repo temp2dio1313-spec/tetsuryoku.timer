@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intellectual Study Timer</title>
+    <title>Chrono - Minimal Study Timer</title>
     <style>
         :root {
-            --bg-color: #0a1118;       /* 知的なディープネイビー */
-            --panel-bg: #121f2c;       /* パネル背景 */
-            --accent-blue: #5e97cb;   /* 洗練されたシアンブルー */
-            --text-main: #f1f5f9;     /* メイン文字 */
-            --text-sub: #64748b;      /* サブ文字 */
-            --border-color: rgba(94, 151, 203, 0.3);
+            --bg-color: #090d12;       /* 深く静かな漆黒に近いネイビー */
+            --text-main: #f8fafc;     /* 純白に近いクリアなグレー */
+            --text-sub: #475569;      /* 控えめなグレー */
+            --accent: #60a5fa;        /* 繊細なライトブルー */
+            --border: rgba(255, 255, 255, 0.04);
         }
 
         body {
@@ -19,286 +18,224 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            letter-spacing: 0.05em;
         }
 
-        .container {
-            width: 90%;
-            max-width: 480px;
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            padding: 35px 30px;
+        .wrapper {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
             box-sizing: border-box;
         }
 
-        /* ヘッダー */
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .header h1 {
-            font-size: 20px;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            color: var(--text-main);
-            margin: 0 0 4px 0;
-        }
-
-        .header p {
-            font-size: 11px;
-            color: var(--accent-blue);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin: 0;
-        }
-
-        /* タブメニュー */
-        .tabs {
+        /* モード選択（上部の繊細なナビゲーション） */
+        .nav {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 25px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 60px;
         }
 
-        .tab-btn {
+        .nav-btn {
             background: none;
             border: none;
             color: var(--text-sub);
-            padding: 12px 5px;
-            font-size: 12px;
-            cursor: pointer;
-            flex: 1;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-            letter-spacing: 0.05em;
-        }
-
-        .tab-btn:hover {
-            color: var(--accent-blue);
-        }
-
-        .tab-btn.active {
-            color: var(--accent-blue);
-            border-bottom: 2px solid var(--accent-blue);
-            font-weight: 600;
-        }
-
-        /* 表示エリア */
-        .display-panel {
-            text-align: center;
-            margin-bottom: 25px;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 20px 0;
-            border-radius: 6px;
-        }
-
-        .status-label {
             font-size: 11px;
-            color: var(--accent-blue);
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            margin-bottom: 8px;
             font-weight: 500;
-        }
-
-        .time-display {
-            font-size: 52px;
-            font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-            font-weight: 400;
-            color: var(--text-main);
-            letter-spacing: 1px;
-        }
-
-        /* コントロールエリア */
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .btn {
-            background: transparent;
-            border: 1px solid var(--accent-blue);
-            color: var(--accent-blue);
-            padding: 10px 0;
-            font-size: 13px;
-            border-radius: 4px;
+            letter-spacing: 0.15em;
             cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100px;
-            letter-spacing: 0.05em;
+            padding: 4px 0;
+            transition: color 0.3s ease;
+            position: relative;
         }
 
-        .btn:hover {
-            background: rgba(94, 151, 203, 0.1);
+        .nav-btn:hover {
+            color: var(--text-main);
         }
 
-        .btn.active-pause {
-            background: var(--accent-blue);
-            color: var(--panel-bg);
-            font-weight: 600;
+        .nav-btn.active {
+            color: var(--accent);
         }
 
-        /* 設定エリア（タイマー用） */
-        .inputs {
+        /* メインカウンター表示 */
+        .display-area {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .label {
+            font-size: 10px;
+            color: var(--text-sub);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            height: 12px;
+        }
+
+        .time {
+            font-size: 64px;
+            font-family: 'SF Mono', SFMono-Regular, Consolas, monospace;
+            font-weight: 200;
+            line-height: 1;
+            color: var(--text-main);
+        }
+
+        /* フォーム（タイマー設定時のみ） */
+        .input-group {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
-            margin-bottom: 25px;
+            margin-top: -20px;
+            margin-bottom: 40px;
         }
 
-        .inputs input {
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .input-group input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--text-sub);
             color: var(--text-main);
-            padding: 8px;
-            width: 55px;
+            font-family: 'SF Mono', monospace;
+            font-size: 18px;
+            width: 45px;
             text-align: center;
-            font-size: 15px;
-            border-radius: 4px;
+            padding: 4px 0;
         }
 
-        .inputs input:focus {
+        .input-group input:focus {
             outline: none;
-            border-color: var(--accent-blue);
+            border-bottom-color: var(--accent);
         }
 
-        .inputs label {
-            font-size: 12px;
+        .input-group span {
+            font-size: 11px;
             color: var(--text-sub);
             margin-right: 4px;
+        }
+
+        /* 操作ボタン */
+        .action-group {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            padding: 8px 16px;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.7;
+        }
+
+        #startBtn {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* 記録セクション */
+        .footer-log {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            text-align: center;
+        }
+
+        .log-label {
+            font-size: 10px;
+            color: var(--text-sub);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .log-time {
+            font-size: 16px;
+            font-family: 'SF Mono', monospace;
+            color: var(--text-main);
+            font-weight: 300;
+        }
+
+        .clear-trigger {
+            display: block;
+            margin: 12px auto 0;
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 9px;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+
+        .clear-trigger:hover {
+            opacity: 0.9;
         }
 
         .hidden {
             display: none !important;
         }
-
-        /* 勉強時間記録ログ */
-        .log-panel {
-            border-top: 1px solid rgba(255,255,255,0.05);
-            padding-top: 20px;
-            margin-top: 10px;
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .log-title {
-            font-size: 12px;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            font-size: 11px;
-            cursor: pointer;
-            opacity: 0.6;
-        }
-
-        .clear-btn:hover {
-            opacity: 1;
-        }
-
-        .total-box {
-            background: rgba(94, 151, 203, 0.05);
-            border: 1px dashed rgba(94, 151, 203, 0.2);
-            border-radius: 4px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .total-time {
-            font-size: 20px;
-            font-family: 'SF Mono', monospace;
-            color: var(--text-main);
-            font-weight: 500;
-        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>STUDY CHRONO</h1>
-        <p>Intellectual Concentration Cell</p>
+<div class="wrapper">
+    <div class="nav">
+        <button class="nav-btn active" onclick="switchMode('clock')">CLOCK</button>
+        <button class="nav-btn" onclick="switchMode('pomodoro')">POMODORO</button>
+        <button class="nav-btn" onclick="switchMode('timer')">TIMER</button>
+        <button class="nav-btn" onclick="switchMode('stopwatch')">STOPWATCH</button>
     </div>
 
-    <!-- タブ -->
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchMode('clock')">CLOCK</button>
-        <button class="tab-btn" onclick="switchMode('pomodoro')">POMODORO</button>
-        <button class="tab-btn" onclick="switchMode('timer')">TIMER</button>
-        <button class="tab-btn" onclick="switchMode('stopwatch')">STOPWATCH</button>
+    <div class="display-area">
+        <div id="statusLabel" class="label"></div>
+        <div id="timeDisplay" class="time">00:00:00</div>
     </div>
 
-    <!-- メインディスプレイ -->
-    <div class="display-panel">
-        <div id="statusLabel" class="status-label">CURRENT TIME</div>
-        <div id="timeDisplay" class="time-display">00:00:00</div>
-    </div>
-
-    <!-- タイマー用入力 -->
-    <div id="timerInputs" class="inputs hidden">
+    <div id="timerInputs" class="input-group hidden">
         <input type="number" id="inputMin" min="0" max="180" value="25">
-        <label>MIN</label>
+        <span>M</span>
         <input type="number" id="inputSec" min="0" max="59" value="0">
-        <label>SEC</label>
+        <span>S</span>
     </div>
 
-    <!-- コントロールボタン -->
-    <div id="controlPanel" class="controls hidden">
-        <button id="startBtn" class="btn" onclick="toggleStart()">START</button>
-        <button id="resetBtn" class="btn" onclick="reset()">RESET</button>
+    <div id="controlPanel" class="action-group hidden">
+        <button id="startBtn" class="action-btn" onclick="toggleStart()">START</button>
+        <button id="resetBtn" class="action-btn" onclick="reset()">RESET</button>
     </div>
 
-    <!-- 勉強時間レコーダー -->
-    <div class="log-panel">
-        <div class="log-header">
-            <div class="log-title">Today's Study Time</div>
-            <button class="clear-btn" onclick="clearLog()">Reset Data</button>
-        </div>
-        <div class="total-box">
-            <div id="totalDisplay" class="total-time">00h 00m 00s</div>
-        </div>
+    <div class="footer-log">
+        <div class="log-label">Today's Focus</div>
+        <div id="totalDisplay" class="log-time">00:00:00</div>
+        <button class="clear-trigger" onclick="clearLog()">CLEAR DATA</button>
     </div>
 </div>
 
 <script>
     let currentMode = 'clock';
     let timerId = null;
+    let recordTimerId = null;
     let isRunning = false;
     
-    // 高精度タイムスタンプ管理用
     let startTime = 0;
-    let elapsedTimeAtPause = 0; // 一時停止までに経過・蓄積されたミリ秒
-    let timerDuration = 0;       // カウントダウンタイマー設定秒数（ミリ秒換算）
-
-    // ポモドーロ状態
-    let pomoState = 'work'; // 'work' or 'break'
-
-    // 勉強記録（本日分秒数）
+    let elapsedTimeAtPause = 0; 
+    let timerDuration = 0;       
+    let pomoState = 'work'; 
     let totalStudySeconds = 0;
-    let recordTimerId = null; // 勉強時間カウント用
 
-    // DOM要素
     const timeDisplay = document.getElementById('timeDisplay');
     const statusLabel = document.getElementById('statusLabel');
     const timerInputs = document.getElementById('timerInputs');
@@ -306,45 +243,38 @@
     const startBtn = document.getElementById('startBtn');
     const totalDisplay = document.getElementById('totalDisplay');
 
-    // 初期化ロード
     window.onload = function() {
         loadStudyLog();
         switchMode('clock');
     };
 
     function switchMode(mode) {
-        // 現在走っているタイマーを安全に停止
         stopAllIntervals();
         isRunning = false;
         currentMode = mode;
         
-        // タブ切り替え
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
         event.currentTarget.classList.add('active');
 
-        // ボタンリセット
-        startBtn.classList.remove('active-pause');
         startBtn.innerText = 'START';
-
-        // 初期化クリア
         elapsedTimeAtPause = 0;
 
         if (mode === 'clock') {
             timerInputs.classList.add('hidden');
             controlPanel.classList.add('hidden');
-            statusLabel.innerText = 'CURRENT TIME';
+            statusLabel.innerText = 'CLOCK';
             runClock();
         } else if (mode === 'pomodoro') {
             timerInputs.classList.add('hidden');
             controlPanel.classList.remove('hidden');
             pomoState = 'work';
-            statusLabel.innerText = 'POMODORO: FOCUS (25m)';
+            statusLabel.innerText = 'FOCUS';
             timerDuration = 25 * 60 * 1000;
             updateCountdownDisplay(timerDuration);
         } else if (mode === 'timer') {
             timerInputs.classList.remove('hidden');
             controlPanel.classList.remove('hidden');
-            statusLabel.innerText = 'COUNTDOWN TIMER';
+            statusLabel.innerText = 'TIMER';
             syncTimerInput();
         } else if (mode === 'stopwatch') {
             timerInputs.classList.add('hidden');
@@ -361,7 +291,6 @@
         recordTimerId = null;
     }
 
-    // 1) 時計モード
     function runClock() {
         const update = () => {
             const now = new Date();
@@ -374,7 +303,6 @@
         timerId = setInterval(update, 250);
     }
 
-    // 2) 表示更新関数群
     function updateCountdownDisplay(ms) {
         if (ms < 0) ms = 0;
         const totalSecs = Math.ceil(ms / 1000);
@@ -398,25 +326,19 @@
         updateCountdownDisplay(timerDuration);
     }
 
-    // 入力監視
     document.getElementById('inputMin').addEventListener('input', () => { if(!isRunning && currentMode==='timer') { syncTimerInput(); elapsedTimeAtPause=0; } });
     document.getElementById('inputSec').addEventListener('input', () => { if(!isRunning && currentMode==='timer') { syncTimerInput(); elapsedTimeAtPause=0; } });
 
-
-    // 3) トリガー制御
     function toggleStart() {
         if (!isRunning) {
-            // スタート処理
             isRunning = true;
             startBtn.innerText = 'PAUSE';
-            startBtn.classList.add('active-pause');
             startTime = Date.now();
 
             if (currentMode === 'timer' && elapsedTimeAtPause === 0) {
                 syncTimerInput();
             }
 
-            // メイン処理ループ
             timerId = setInterval(() => {
                 const now = Date.now();
                 const diff = now - startTime + elapsedTimeAtPause;
@@ -424,7 +346,6 @@
                 if (currentMode === 'stopwatch') {
                     updateStopwatchDisplay(diff);
                 } else {
-                    // カウントダウン（タイマー / ポモドーロ）
                     let remaining = timerDuration - diff;
                     if (remaining <= 0) {
                         handleTimeUp();
@@ -434,7 +355,6 @@
                 }
             }, 30);
 
-            // 勉強時間カウント（ストップウォッチ、またはポモドーロのFOCUS、通常のタイマー稼働時に加算）
             if (currentMode === 'stopwatch' || currentMode === 'timer' || (currentMode === 'pomodoro' && pomoState === 'work')) {
                 let lastRecordTime = Date.now();
                 recordTimerId = setInterval(() => {
@@ -444,16 +364,10 @@
                     updateStudyLogDisplay();
                 }, 1000);
             }
-
         } else {
-            // 一時停止処理
             isRunning = false;
             startBtn.innerText = 'START';
-            startBtn.classList.remove('active-pause');
-            
-            // 現在までの経過時間を記憶
             elapsedTimeAtPause += (Date.now() - startTime);
-            
             stopAllIntervals();
             saveStudyLog();
         }
@@ -463,12 +377,11 @@
         stopAllIntervals();
         isRunning = false;
         startBtn.innerText = 'START';
-        startBtn.classList.remove('active-pause');
         elapsedTimeAtPause = 0;
 
         if (currentMode === 'pomodoro') {
             pomoState = 'work';
-            statusLabel.innerText = 'POMODORO: FOCUS (25m)';
+            statusLabel.innerText = 'FOCUS';
             timerDuration = 25 * 60 * 1000;
             updateCountdownDisplay(timerDuration);
         } else if (currentMode === 'timer') {
@@ -483,61 +396,57 @@
         stopAllIntervals();
         isRunning = false;
         startBtn.innerText = 'START';
-        startBtn.classList.remove('active-pause');
         elapsedTimeAtPause = 0;
 
-        // 電子アラーム音をWeb Audio APIで生成
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(880, audioCtx.currentTime);
         osc.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.4);
+        osc.stop(audioCtx.currentTime + 0.3);
 
         if (currentMode === 'pomodoro') {
             if (pomoState === 'work') {
-                alert('FOCUSタイム終了。5分間の休憩に入ります。');
+                alert('FOCUS TIME END. TAKE A BREAK.');
                 pomoState = 'break';
-                statusLabel.innerText = 'POMODORO: BREAK (5m)';
+                statusLabel.innerText = 'BREAK';
                 timerDuration = 5 * 60 * 1000;
             } else {
-                alert('BREAKタイム終了。25分間の集中に入ります。');
+                alert('BREAK TIME END. FOCUS AGAIN.');
                 pomoState = 'work';
-                statusLabel.innerText = 'POMODORO: FOCUS (25m)';
+                statusLabel.innerText = 'FOCUS';
                 timerDuration = 25 * 60 * 1000;
             }
             updateCountdownDisplay(timerDuration);
         } else {
-            alert('設定時間になりました。');
+            alert('TIME UP.');
             syncTimerInput();
         }
         saveStudyLog();
     }
 
-    // 4) 勉強時間の永続化（LocalStorage）
     function updateStudyLogDisplay() {
         const total = Math.floor(totalStudySeconds);
         const h = String(Math.floor(total / 3600)).padStart(2, '0');
         const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
         const s = String(total % 60).padStart(2, '0');
-        totalDisplay.innerText = `${h}h ${m}m ${s}s`;
+        totalDisplay.innerText = `${h}:${m}:${s}`;
     }
 
     function saveStudyLog() {
         const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem('study_date', today);
-        localStorage.setItem('study_seconds', totalStudySeconds.toString());
+        localStorage.setItem('study_date_min', today);
+        localStorage.setItem('study_seconds_min', totalStudySeconds.toString());
     }
 
     function loadStudyLog() {
         const today = new Date().toISOString().split('T')[0];
-        const savedDate = localStorage.getItem('study_date');
+        const savedDate = localStorage.getItem('study_date_min');
         
         if (savedDate === today) {
-            totalStudySeconds = parseFloat(localStorage.getItem('study_seconds')) || 0;
+            totalStudySeconds = parseFloat(localStorage.getItem('study_seconds_min')) || 0;
         } else {
-            // 日付が変わっていたら自動リセット
             totalStudySeconds = 0;
             saveStudyLog();
         }
@@ -545,13 +454,12 @@
     }
 
     function clearLog() {
-        if(confirm('本日の勉強記録データをリセットしますか？')) {
+        if(confirm('本日のデータをリセットしますか？')) {
             totalStudySeconds = 0;
             saveStudyLog();
             updateStudyLogDisplay();
         }
     }
 </script>
-
 </body>
 </html>
