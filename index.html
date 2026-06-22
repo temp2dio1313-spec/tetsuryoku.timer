@@ -232,7 +232,6 @@
             width: 100%;
             max-width: 500px;
             height: 72vh;
-            /* 背景のcafe.pngが見えやすくなるよう、すりガラス風（半透明）の高級感あるホワイトに */
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -253,6 +252,12 @@
             margin-bottom: 12px;
             min-height: 95px;
             border: 1px solid rgba(251, 196, 171, 0.4);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+        }
+        .avatar-area:active {
+            transform: scale(0.97);
         }
         .avatar-graphics {
             font-family: monospace;
@@ -275,7 +280,6 @@
             padding-right: 4px;
         }
         
-        /* スクロールバーをおしゃれに */
         .shop-shelves::-webkit-scrollbar { width: 6px; }
         .shop-shelves::-webkit-scrollbar-track { background: transparent; }
         .shop-shelves::-webkit-scrollbar-thumb { background: var(--main-pink); border-radius: 10px; }
@@ -291,7 +295,6 @@
         }
         .shelf-title:first-child { margin-top: 0; }
         
-        /* スマホでのスクロール視認性を高めるため1列カードに変更 */
         .items-grid {
             display: flex;
             flex-direction: column;
@@ -407,6 +410,10 @@
     <audio id="bgm-player"></audio>
     <audio id="shop-player" src="shop.mp3" loop></audio>
     <audio id="alarm-player" src="huurin.mp3"></audio>
+    
+    <!-- 効果音用プレイヤー -->
+    <audio id="se-player"></audio>
+    <audio id="avatar-se-player" src="abata.mp3"></audio>
 
     <!-- ミュージックウィジェット -->
     <div class="music-widget">
@@ -503,8 +510,8 @@
     <div id="screen-shop" class="screen">
         <h2>すたでぃショップ</h2>
         <div class="shop-layout">
-            <!-- アバターエリア -->
-            <div class="avatar-area">
+            <!-- アバターエリア（クリックイベント追加） -->
+            <div class="avatar-area" onclick="tapAvatar()">
                 <div id="avatar-body" class="avatar-graphics">(o^^o)</div>
                 <div id="avatar-speech" class="avatar-balloon">なにか食べたいな…！</div>
             </div>
@@ -575,8 +582,10 @@
         const bgmPlayer = document.getElementById('bgm-player');
         const shopPlayer = document.getElementById('shop-player');
         const alarmPlayer = document.getElementById('alarm-player');
+        const sePlayer = document.getElementById('se-player');
+        const avatarSePlayer = document.getElementById('avatar-se-player');
 
-        let wasPlayingBeforeShop = false; // ショップに入る前にBGMが鳴っていたか保持するフラグ
+        let wasPlayingBeforeShop = false; 
 
         window.onload = function() {
             displayTodayRecord();
@@ -635,7 +644,6 @@
             return card;
         }
 
-        // 🎵 オーディオの音量フェードアウト/フェードイン関数
         function fadeAudio(audioElement, startVol, endVol, duration, callback) {
             const steps = 20;
             const stepTime = duration / steps;
@@ -665,39 +673,62 @@
             }, stepTime);
         }
 
-        // ショップ画面を開く（BGM切り替え）
         function openShopScreen() {
             changeScreen('screen-shop');
             document.getElementById('avatar-body').innerText = "(o^^o)";
             document.getElementById('avatar-speech').innerText = "なにか食べたいな…！";
             document.getElementById('secret-code-input').value = '';
 
-            // プレイヤー状態を記録
             wasPlayingBeforeShop = isPlaying;
 
             if (isPlaying) {
-                // 通常BGMをフェードアウトして一時停止
                 fadeAudio(bgmPlayer, 1.0, 0, 400, () => {
-                    // 通常BGM停止完了後に、ショップBGMをフェードイン
                     fadeAudio(shopPlayer, 0, 1.0, 400);
                 });
             } else {
-                // 元々鳴っていなくてもショップ内はshop.mp3をフェードイン再生
                 fadeAudio(shopPlayer, 0, 1.0, 400);
             }
         }
 
-        // ショップ画面を閉じる（BGMを戻す）
         function closeShopScreen() {
             changeScreen('screen-main');
 
-            // ショップBGMをフェードアウト
             fadeAudio(shopPlayer, 1.0, 0, 400, () => {
-                // もしショップに入る前に音楽が再生されていたら元のBGMをフェードインで再開
                 if (wasPlayingBeforeShop) {
                     fadeAudio(bgmPlayer, 0, 1.0, 400);
                 }
             });
+        }
+
+        // アバタータッチ時のリアクション
+        let avatarTapTimeout = null;
+        function tapAvatar() {
+            // タッチ効果音を再生
+            avatarSePlayer.currentTime = 0;
+            avatarSePlayer.play().catch(()=>{});
+
+            const bodyEl = document.getElementById('avatar-body');
+            const speechEl = document.getElementById('avatar-speech');
+            
+            // プレゼント時のタイマーとバッティングしないように一旦クリア
+            clearTimeout(avatarTimeout);
+            clearTimeout(avatarTapTimeout);
+
+            bodyEl.innerText = "(*>∀<*)";
+            
+            const lines = [
+                "なになにー？いっしょにがんばろうね！",
+                "つつくと、ちょっとくすぐったいぞっ！",
+                "カフェの雰囲気、すごく落ち着くねぇ",
+                "応援してるよ！ひと息ついたらまた始めよう"
+            ];
+            const randomLine = lines[Math.floor(Math.random() * lines.length)];
+            speechEl.innerText = randomLine;
+
+            avatarTapTimeout = setTimeout(() => {
+                bodyEl.innerText = "(o^^o)";
+                speechEl.innerText = "次は何をくれるの？";
+            }, 3000);
         }
 
         let avatarTimeout = null;
@@ -716,17 +747,32 @@
             const speechEl = document.getElementById('avatar-speech');
             
             clearTimeout(avatarTimeout);
+            clearTimeout(avatarTapTimeout);
 
+            // 金額に応じたセリフ切り替えと効果音再生
             if (price >= 1000) {
+                // 1番喜んでいるとき
+                sePlayer.src = "oishi01.mp3";
+                sePlayer.play().catch(()=>{});
+
                 bodyEl.innerText = "＼(≧▽≦)／";
                 speechEl.innerText = `すごすぎる！高級な ${name} だー！！幸せ！`;
             } else if (price >= 600) {
+                // つぎに喜んでいるとき
+                sePlayer.src = "oishi02.mp3";
+                sePlayer.play().catch(()=>{});
+
                 bodyEl.innerText = " ＼(＠＾▽＾＠)／ ";
                 speechEl.innerText = `わあー！贅沢な ${name} ！！すっごく嬉しい！`;
             } else if (price >= 300) {
+                // さらにそのつぎに喜んでいるとき
+                sePlayer.src = "oishi03.mp3";
+                sePlayer.play().catch(()=>{});
+
                 bodyEl.innerText = "( *´▽`* )";
                 speechEl.innerText = `おいしい ${name} ありがとう！やる気が出るよ！`;
             } else {
+                // 通常時（100円〜250円）は効果音なしでもぐもぐ
                 bodyEl.innerText = "(*^o^*)";
                 speechEl.innerText = `${name} もぐもぐ！美味しいよ、ありがとう！`;
             }
@@ -746,6 +792,7 @@
             const bodyEl = document.getElementById('avatar-body');
             const speechEl = document.getElementById('avatar-speech');
             clearTimeout(avatarTimeout);
+            clearTimeout(avatarTapTimeout);
 
             if (code === "ねなかった") {
                 if (usedCommands.nenatta) {
