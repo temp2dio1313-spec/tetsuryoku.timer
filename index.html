@@ -119,7 +119,7 @@
 
         .track-info {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 5px;
         }
         .track-title {
             font-size: 0.95rem;
@@ -129,26 +129,92 @@
             text-overflow: ellipsis;
         }
 
+        /* 音量コントロールバーのスタイル */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+        .volume-label {
+            font-size: 0.7rem;
+            color: #a38f87;
+            font-weight: 500;
+            user-select: none;
+        }
+        .volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #e6dfda;
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--main-pink);
+            transition: transform 0.1s;
+        }
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border: none;
+            border-radius: 50%;
+            background: var(--main-pink);
+            transition: transform 0.1s;
+            cursor: pointer;
+        }
+        .volume-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
         .player-controls {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 16px;
+            gap: 15px;
             margin-bottom: 15px;
+            position: relative;
         }
         .control-btn {
             background: none; border: none; box-shadow: none; padding: 5px;
-            font-size: 0.9rem; font-weight: bold; cursor: pointer; color: var(--text-color);
+            font-size: 0.85rem; font-weight: bold; cursor: pointer; color: var(--text-color);
             transition: color 0.2s, transform 0.1s; width: auto; height: auto; border-radius: 0;
         }
-        .control-btn:hover { background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none; }
-        .control-btn.active { color: #e29578; }
-        .play-pause-btn { font-size: 1.2rem; }
+        .control-btn:hover { background: none; color: var(--main-pink); transform: scale(1.05); box-shadow: none; }
+        .play-pause-btn { font-size: 1.1rem; }
+
+        /* テキストベースのコンパクトなリピートボタン */
+        .repeat-btn {
+            font-size: 0.75rem;
+            color: #bfa397;
+            border: 1px solid #e6dfda;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+        .repeat-btn.active {
+            color: #e29578;
+            border-color: #e29578;
+            background-color: #fff9f6;
+        }
 
         .playlist {
             border-top: 1px dashed var(--sub-cream);
             padding-top: 10px;
-            max-height: 100px;
+            max-height: 140px;
             overflow-y: auto;
         }
         .playlist-title {
@@ -160,6 +226,36 @@
         }
         .track-item:hover { background-color: var(--bg-color); }
         .track-item.current { background-color: var(--sub-cream); font-weight: 500; }
+
+        /* 曲名アナウンス用トースト */
+        .music-toast {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--main-pink);
+            padding: 10px 24px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(109, 89, 82, 0.1);
+            z-index: 150;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .music-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .music-toast-sub {
+            font-size: 0.7rem;
+            color: #a38f87;
+            margin-bottom: 2px;
+            letter-spacing: 0.05em;
+        }
 
         /* 画面共通スタイル */
         .screen {
@@ -204,7 +300,7 @@
         .spinner-arrow { background: none; border: none; box-shadow: none; padding: 0; width: 32px; height: 32px; cursor: pointer; color: #bfa397; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
         .spinner-arrow:hover { background: none; color: var(--main-pink); transform: scale(1.1); box-shadow: none; }
 
-        /* ⏱️ タイマー・カウントダウン関連 */
+        /* タイマー・カウントダウン関連 */
         .timer-container-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .timer-display { font-family: var(--font-number); font-size: 6rem; font-weight: 400; margin-bottom: 20px; letter-spacing: 2px; }
         .status-badge { background-color: var(--sub-cream); padding: 6px 16px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 15px; font-weight: 500; }
@@ -231,7 +327,86 @@
         .cute-alarm-bg { background-color: #fff0f3 !important; }
         .alarm-overlay { display: none; position: absolute; top: 12%; background: #ffb5a7; color: white; padding: 12px 28px; border-radius: 25px; font-weight: bold; font-size: 1.05rem; box-shadow: 0 8px 20px rgba(251, 181, 167, 0.4); letter-spacing: 0.05em; }
 
-        /* 🛒 ショップ専用背景・レイアウト */
+        /* カレンダー画面スタイル */
+        .calendar-container {
+            width: 100%;
+            max-width: 360px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(109, 89, 82, 0.05);
+            border: 1px dashed var(--main-pink);
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .calendar-header h3 {
+            font-family: var(--font-number);
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        .calendar-nav-btn {
+            background: none; border: none; box-shadow: none; padding: 5px;
+            font-size: 0.85rem; font-weight: bold; cursor: pointer; color: var(--text-color);
+        }
+        .calendar-nav-btn:hover { background: none; color: var(--main-pink); box-shadow: none; }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+        .weekday-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #a38f87;
+            padding-bottom: 5px;
+        }
+        .calendar-day {
+            font-family: var(--font-number);
+            font-size: 0.95rem;
+            padding: 8px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .calendar-day:hover:not(.empty) {
+            background-color: var(--sub-cream);
+        }
+        .calendar-day.has-record::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: #e29578;
+            border-radius: 50%;
+        }
+        .calendar-day.today {
+            border: 1px solid var(--main-pink);
+            font-weight: bold;
+        }
+        .calendar-day.empty {
+            cursor: default;
+        }
+        .day-detail-box {
+            margin-top: 15px;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+            min-height: 38px;
+        }
+
+        /* ショップ専用背景・レイアウト */
         #screen-shop {
             background-image: url('cafe.png');
             background-size: cover;
@@ -262,7 +437,7 @@
             border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
-        /* 🥚 インタラクティブCSSアバター */
+        /* アバター */
         .avatar-area {
             display: flex;
             align-items: center;
@@ -309,7 +484,6 @@
             justify-content: center;
         }
         
-        /* おめめ（自動まばまばたき） */
         .avatar-eye {
             position: absolute;
             top: 24px;
@@ -340,7 +514,6 @@
         .avatar-character.happy .avatar-eye.left { transform: rotate(-10deg); }
         .avatar-character.happy .avatar-eye.right { transform: rotate(10deg); }
 
-        /* ほっぺ */
         .avatar-blush-cheek {
             position: absolute;
             top: 30px;
@@ -354,7 +527,6 @@
         .avatar-blush-cheek.left { left: 8px; }
         .avatar-blush-cheek.right { right: 8px; }
 
-        /* おくち */
         .avatar-mouth {
             position: absolute;
             top: 32px;
@@ -372,7 +544,6 @@
             border-radius: 2px 2px 50% 50%;
         }
 
-        /* ふきだし */
         .avatar-right-balloon-box {
             flex: 1;
             display: flex;
@@ -500,7 +671,7 @@
             background-color: var(--main-pink);
         }
 
-        /* 📱 スマホ縦画面・レスポンシブ微調整 */
+        /* レスポンシブ */
         @media (max-width: 480px) {
             h1 { font-size: 2rem; }
             h2 { font-size: 1.3rem; }
@@ -511,6 +682,8 @@
             .music-widget { top: 15px; right: 15px; }
             .player-panel { width: 250px; }
             .countdown-overlay { font-size: 5rem; }
+            .music-toast { top: 75px; font-size: 0.85rem; padding: 8px 18px; }
+            .calendar-container { max-width: 300px; padding: 15px; }
         }
     </style>
 </head>
@@ -518,13 +691,20 @@
 
     <div class="global-sp-counter">所持: <span id="global-sp-display">0</span> SP</div>
 
+    <div id="music-toast" class="music-toast">
+        <div class="music-toast-sub">NOW PLAYING</div>
+        <div id="music-toast-title">曲名</div>
+    </div>
+
     <audio id="bgm-player"></audio>
     <audio id="shop-player" src="shop.mp3" loop></audio>
     <audio id="alarm-player" src="huurin.mp3"></audio>
     
     <audio id="se-player"></audio>
     <audio id="avatar-se-player" src="abata.mp3"></audio>
-    <audio id="click-se-player" src="click.mp3"></audio> <div class="music-widget">
+    <audio id="click-se-player" src="click.mp3"></audio>
+
+    <div class="music-widget">
         <div id="bgm-btn" class="bgm-trigger" onclick="playClickSE(); togglePlayerPanel()">
             <span id="bgm-icon">BGM</span>
             <span id="bgm-status-text">Menu</span>
@@ -535,11 +715,19 @@
                 <div id="current-track-title" class="track-title">選択されていません</div>
             </div>
             
+            <div class="volume-container">
+                <span class="volume-label">[ VOL - ]</span>
+                <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="adjustBGMVolume(this.value)">
+                <span class="volume-label">[ VOL + ]</span>
+            </div>
+            
             <div class="player-controls">
-                <button class="control-btn" onclick="playClickSE(); toggleRepeatMode()" id="btn-repeat">LOOP ALL</button>
-                <button class="control-btn" onclick="playClickSE(); prevTrack()">|◀</button>
+                <button class="control-btn repeat-btn active" onclick="playClickSE(); toggleRepeatMode()" id="btn-repeat" title="リピート切替">
+                    [LOOP ALL]
+                </button>
+                <button class="control-btn" onclick="playClickSE(); prevTrack()">|&lt;</button>
                 <button class="control-btn play-pause-btn" onclick="playClickSE(); togglePlayPause()" id="btn-play-pause">PLAY</button>
-                <button class="control-btn" onclick="playClickSE(); nextTrack()">▶|</button>
+                <button class="control-btn" onclick="playClickSE(); nextTrack()">&gt;|</button>
             </div>
             
             <div class="playlist">
@@ -557,6 +745,7 @@
             <button onclick="playClickSE(); changeScreen('screen-class-select')">授業記録</button>
             <button onclick="playClickSE(); changeScreen('screen-self-select')">自習</button>
             <button onclick="playClickSE(); changeScreen('screen-go-out')">おでかけ</button>
+            <button onclick="playClickSE(); openCalendarScreen()" style="border-color: #ffedd8; background-color: #fffdfa;">カレンダー</button>
             <button onclick="playClickSE(); openShopScreen()" style="border-color: #bdedf2; background-color: #f4fcfd;">ショップ</button>
         </div>
     </div>
@@ -625,6 +814,29 @@
         </div>
     </div>
 
+    <div id="screen-calendar" class="screen">
+        <h2>勉強のきろく</h2>
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="calendar-nav-btn" onclick="playClickSE(); moveMonth(-1)">[&lt; PREV]</button>
+                <h3 id="calendar-month-title">2026 / 06</h3>
+                <button class="calendar-nav-btn" onclick="playClickSE(); moveMonth(1)">[NEXT &gt;]</button>
+            </div>
+            <div class="calendar-grid" id="calendar-weeks-labels">
+                <div class="weekday-label">日</div>
+                <div class="weekday-label">月</div>
+                <div class="weekday-label">火</div>
+                <div class="weekday-label">水</div>
+                <div class="weekday-label">木</div>
+                <div class="weekday-label">金</div>
+                <div class="weekday-label">土</div>
+            </div>
+            <div class="calendar-grid" id="calendar-days-grid"></div>
+            <div class="day-detail-box" id="calendar-day-detail">日付をタッチすると記録が表示されます</div>
+        </div>
+        <button class="secondary" onclick="playClickSE(); changeScreen('screen-main')">メインにもどる</button>
+    </div>
+
     <div id="screen-shop" class="screen">
         <h2>すたでぃショップ</h2>
         <div class="shop-layout">
@@ -664,7 +876,7 @@
 
     <script>
         let timerInterval = null;
-        let countdownInterval = null; // カウントダウン用
+        let countdownInterval = null; 
         let totalSeconds = 0;
         let elapsedSecondsInSession = 0; 
         let isPaused = false;
@@ -675,7 +887,8 @@
         let currentSP = parseFloat(localStorage.getItem('study_sp') || '0');
         let isInfiniteSP = false; 
 
-        let usedCommands = JSON.parse(localStorage.getItem('study_used_commands') || '{"nenatta":false, "eraiko":false, "ganbatta":false}');
+        // カレンダー表示用データ
+        let calendarCurrentDate = new Date();
 
         const shopItems = {
             drinks: [
@@ -698,14 +911,23 @@
 
         const tracks = [
             { id: 0, title: "三葉のテーマ", file: "music1.mp3" },
-            { id: 1, title: "夢灯籠", file: "music2.mp3" }
+            { id: 1, title: "夢灯籠", file: "music2.mp3" },
+            { id: 2, title: "A whole new world", file: "music3.mp3" },
+            { id: 3, title: "Beauty and the Beast", file: "music4.mp3" },
+            { id: 4, title: "Soranji", file: "music5.mp3" },
+            { id: 5, title: "花火", file: "music6.mp3" },
+            { id: 6, title: "花に亡霊", file: "music7.mp3" },
+            { id: 7, title: "ハッピーエンド", file: "music8.mp3" },
+            { id: 8, title: "花束", file: "music9.mp3" },
+            { id: 9, title: "わたがし", file: "music10.mp3" }
         ];
         let currentTrackIndex = 0;
         let isPlaying = false;
         let repeatMode = 'all'; 
+        let currentBgmVolume = 1.0; 
         let nextTrackTimeout = null;
+        let toastTimeout = null; 
 
-        // アバター制御用のタイムアウト管理用変数を宣言
         let avatarTimeout = null;
         let avatarTapTimeout = null;
 
@@ -727,13 +949,16 @@
             
             bgmPlayer.onended = function() {
                 if (repeatMode === 'one') {
-                    bgmPlayer.play();
+                    bgmPlayer.play().then(() => {
+                        showMusicToast(tracks[currentTrackIndex].title);
+                    });
                 } else {
                     clearTimeout(nextTrackTimeout);
-                    document.getElementById('current-track-title').innerText = "間隔をあけています (3秒)...";
+                    document.getElementById('current-track-title').innerText = "次の曲へ (1秒)...";
+                    
                     nextTrackTimeout = setTimeout(() => {
                         nextTrack();
-                    }, 3000);
+                    }, 1000);
                 }
             };
 
@@ -742,14 +967,33 @@
             };
         };
 
-        // ショップ画面以外用の共通クリックSE再生関数
+        function adjustBGMVolume(val) {
+            currentBgmVolume = parseFloat(val);
+            if (bgmPlayer && !bgmPlayer.paused) {
+                bgmPlayer.volume = currentBgmVolume;
+            }
+        }
+
+        function showMusicToast(title) {
+            const toast = document.getElementById('music-toast');
+            const toastTitle = document.getElementById('music-toast-title');
+            
+            clearTimeout(toastTimeout);
+            
+            toastTitle.innerText = title;
+            toast.classList.add('show');
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         function playClickSE() {
             clickSePlayer.currentTime = 0;
             clickSePlayer.volume = 0.5;
             clickSePlayer.play().catch(()=>{});
         }
 
-        // おでかけ用 確認ログ表示＆遷移関数
         function confirmAndNavigate(placeName, url) {
             const result = confirm(`${placeName}に移動しますか？`);
             if (result) {
@@ -763,7 +1007,7 @@
                 displayEl.innerText = "無制限";
             } else {
                 displayEl.innerText = Math.floor(currentSP);
-                localStorage.setItem('study_sp', currentSP.toString());
+                localStorage.setItem('study_sp', currentSP.toString()); // SPは日付に依存せず常にlocalStorageに同期保存
             }
         }
 
@@ -852,7 +1096,7 @@
             wasPlayingBeforeShop = isPlaying;
 
             if (isPlaying) {
-                fadeAudio(bgmPlayer, 1.0, 0, 400, () => {
+                fadeAudio(bgmPlayer, currentBgmVolume, 0, 400, () => {
                     fadeAudio(shopPlayer, 0, 1.0, 400);
                 });
             } else {
@@ -865,7 +1109,7 @@
 
             fadeAudio(shopPlayer, 1.0, 0, 400, () => {
                 if (wasPlayingBeforeShop) {
-                    fadeAudio(bgmPlayer, 0, 1.0, 400);
+                    fadeAudio(bgmPlayer, 0, currentBgmVolume, 400);
                 }
             });
         }
@@ -897,7 +1141,7 @@
                 "カフェの雰囲気、すごく落ち着くねぇ",
                 "応援してるよ！ひと息ついたらまた始めよう"
             ];
-            const randomLine = lines[Math.floor(Math.random() * lines.length)];
+            const randomLine = lines[lines.length * Math.random() | 0];
             speechEl.innerText = randomLine;
 
             avatarTapTimeout = setTimeout(() => {
@@ -977,42 +1221,31 @@
             clearTimeout(avatarTapTimeout);
             resetAvatarState();
 
-            if (code === "ねなかった") {
-                if (usedCommands.nenatta) {
-                    alert("このコマンドはすでに1回使われています。");
-                } else {
-                    usedCommands.nenatta = true;
-                    localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
-                    if (!isInfiniteSP) currentSP += 1000;
-                    updateSPDisplay();
-                    charEl.classList.add('happy');
+            // 1日1回制限用のストレージ処理
+            const todayStr = getTodayString();
+            let commandHistory = JSON.parse(localStorage.getItem('study_command_history_daily') || '{}');
+
+            if (code === "ねなかった" || code === "えらいこ" || code === "がんばった") {
+                if (commandHistory[code] === todayStr) {
+                    alert("このコトバは今日はもう使われています。また明日使ってね！");
+                    return;
+                }
+
+                commandHistory[code] = todayStr;
+                localStorage.setItem('study_command_history_daily', JSON.stringify(commandHistory));
+
+                if (!isInfiniteSP) currentSP += 1000;
+                updateSPDisplay();
+                charEl.classList.add('happy');
+
+                if (code === "ねなかった") {
                     speechEl.innerText = "誘惑に負けずに起きてて本当にえらい！1000SPをあげるね！";
-                }
-            } 
-            else if (code === "えらいこ") {
-                if (usedCommands.eraiko) {
-                    alert("このコマンドはすでに1回使われています。");
-                } else {
-                    usedCommands.eraiko = true;
-                    localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
-                    if (!isInfiniteSP) currentSP += 1000;
-                    updateSPDisplay();
-                    charEl.classList.add('happy');
+                } else if (code === "えらいこ") {
                     speechEl.innerText = "あなたは最高のえらいこ！いつも見てるよ。1000SPをどうぞ！";
+                } else if (code === "がんばった") {
+                    speechEl.innerText = "本当にお疲れ様！努力 of 成果だね。1000SPを受け取って！";
                 }
             } 
-            else if (code === "がんばった") {
-                if (usedCommands.ganbatta) {
-                    alert("このコマンドはすでに1回使われています。");
-                } else {
-                    usedCommands.ganbatta = true;
-                    localStorage.setItem('study_used_commands', JSON.stringify(usedCommands));
-                    if (!isInfiniteSP) currentSP += 1000;
-                    updateSPDisplay();
-                    charEl.classList.add('happy');
-                    speechEl.innerText = "本当にお疲れ様！努力の成果だね。1000SPを受け取って！";
-                }
-            }
             else if (code === "動作確認") {
                 isInfiniteSP = true;
                 updateSPDisplay();
@@ -1037,7 +1270,6 @@
             }, 6000);
         }
 
-        // 🎵 ミュージックプレイヤーコントロール
         function togglePlayerPanel() {
             const panel = document.getElementById('player-panel');
             panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
@@ -1058,7 +1290,7 @@
         function loadTrack(index) {
             currentTrackIndex = index;
             bgmPlayer.src = tracks[index].file;
-            bgmPlayer.volume = 1.0; 
+            bgmPlayer.volume = currentBgmVolume; 
             document.getElementById('current-track-title').innerText = tracks[index].title;
             renderPlaylist();
         }
@@ -1067,7 +1299,9 @@
             clearTimeout(nextTrackTimeout);
             loadTrack(index);
             if (isPlaying) {
-                bgmPlayer.play().catch(()=>{});
+                bgmPlayer.play().then(() => {
+                    showMusicToast(tracks[index].title);
+                }).catch(()=>{});
             } else {
                 togglePlayPause();
             }
@@ -1080,12 +1314,13 @@
             const icon = document.getElementById('bgm-icon');
 
             if (!isPlaying) {
-                bgmPlayer.volume = 1.0;
+                bgmPlayer.volume = currentBgmVolume;
                 bgmPlayer.play().then(() => {
                     isPlaying = true;
                     btn.innerText = 'PAUSE';
                     triggerBtn.classList.add('playing');
                     icon.innerText = 'BGM ON';
+                    showMusicToast(tracks[currentTrackIndex].title);
                 }).catch(err => {
                     alert('音楽ファイルが読み込めないか見つかりません。');
                 });
@@ -1103,7 +1338,11 @@
             let nextIndex = currentTrackIndex + 1;
             if (nextIndex >= tracks.length) nextIndex = 0;
             loadTrack(nextIndex);
-            if (isPlaying) bgmPlayer.play().catch(()=>{});
+            if (isPlaying) {
+                bgmPlayer.play().then(() => {
+                    showMusicToast(tracks[nextIndex].title);
+                }).catch(()=>{});
+            }
         }
 
         function prevTrack() {
@@ -1111,19 +1350,21 @@
             let prevIndex = currentTrackIndex - 1;
             if (prevIndex < 0) prevIndex = tracks.length - 1;
             loadTrack(prevIndex);
-            if (isPlaying) bgmPlayer.play().catch(()=>{});
+            if (isPlaying) {
+                bgmPlayer.play().then(() => {
+                    showMusicToast(tracks[prevIndex].title);
+                }).catch(()=>{});
+            }
         }
 
         function toggleRepeatMode() {
             const btn = document.getElementById('btn-repeat');
             if (repeatMode === 'all') {
                 repeatMode = 'one';
-                btn.innerText = 'LOOP ONE';
-                btn.classList.add('active');
+                btn.innerText = '[LOOP ONE]';
             } else {
                 repeatMode = 'all';
-                btn.innerText = 'LOOP ALL';
-                btn.classList.remove('active');
+                btn.innerText = '[LOOP ALL]';
             }
         }
 
@@ -1145,22 +1386,119 @@
                 localStorage.setItem('study_today_minutes', '0');
             }
             const todayMinutes = parseFloat(localStorage.getItem('study_today_minutes') || '0');
-            document.getElementById('today-record-time').innerText = todayMinutes.toFixed(1) + '分';
+            document.getElementById('today-record-time').innerText = formatMinutesToHoursAndMinutes(todayMinutes);
+        }
+
+        // 分を「~時間~分」または「~分」の読みやすい形式に変換する補助関数
+        function formatMinutesToHoursAndMinutes(totalMinutes) {
+            if (totalMinutes === 0) return "0分";
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            if (hours > 0) {
+                return `${hours}時間${minutes.toFixed(0)}分`;
+            } else {
+                return `${minutes.toFixed(1)}分`;
+            }
         }
 
         function saveStudyTimeAndSP(seconds) {
             if (seconds <= 0) return;
             const minutesEarned = seconds / 60;
             
+            // 今日の記録用
             const currentTotalMinutes = parseFloat(localStorage.getItem('study_today_minutes') || '0');
             localStorage.setItem('study_today_minutes', currentTotalMinutes + minutesEarned);
             displayTodayRecord();
+
+            // カレンダー履歴保存用 (日付文字列キーに加算して蓄積)
+            const todayStr = getTodayString();
+            const pastMinutes = parseFloat(localStorage.getItem(`study_log_${todayStr}`) || '0');
+            localStorage.setItem(`study_log_${todayStr}`, (pastMinutes + minutesEarned).toString());
 
             if (!isInfiniteSP) {
                 const pointsEarned = minutesEarned * 10;
                 currentSP += pointsEarned;
             }
             updateSPDisplay();
+        }
+
+        /* --- カレンダー生成・管理ロジック --- */
+        function openCalendarScreen() {
+            calendarCurrentDate = new Date(); // 今日をベースに初期表示
+            renderCalendar();
+            changeScreen('screen-calendar');
+        }
+
+        function moveMonth(delta) {
+            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const year = calendarCurrentDate.getFullYear();
+            const month = calendarCurrentDate.getMonth();
+            
+            // ヘッダータイトル更新
+            document.getElementById('calendar-month-title').innerText = `${year} / ${String(month + 1).padStart(2, '0')}`;
+            
+            const gridContainer = document.getElementById('calendar-days-grid');
+            gridContainer.innerHTML = '';
+            document.getElementById('calendar-day-detail').innerText = "日付をタッチすると記録が表示されます";
+
+            // 月の初日の曜日と、月の総日数を取得
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            
+            const todayObj = new Date();
+            const todayStr = `${todayObj.getFullYear()}-${String(todayObj.getMonth()+1).padStart(2,'0')}-${String(todayObj.getDate()).padStart(2,'0')}`;
+
+            // 先頭の空欄埋め
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day empty';
+                gridContainer.appendChild(emptyCell);
+            }
+
+            // 日付セルの生成
+            for (let day = 1; day <= totalDays; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                dayCell.innerText = day;
+
+                const currentKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // 記録が存在するか判定
+                const minutesRecord = parseFloat(localStorage.getItem(`study_log_${currentKey}`) || '0');
+                if (minutesRecord > 0) {
+                    dayCell.classList.add('has-record');
+                }
+                
+                // 今日かどうか
+                if (currentKey === todayStr) {
+                    dayCell.classList.add('today');
+                }
+
+                // タッチ・クリックイベント
+                dayCell.onclick = () => {
+                    playClickSE();
+                    showDayDetail(currentKey, year, month + 1, day);
+                };
+
+                gridContainer.appendChild(dayCell);
+            }
+        }
+
+        function showDayDetail(dateKey, year, month, day) {
+            const detailBox = document.getElementById('calendar-day-detail');
+            const totalMinutes = parseFloat(localStorage.getItem(`study_log_${dateKey}`) || '0');
+            
+            if (totalMinutes > 0) {
+                const timeString = formatMinutesToHoursAndMinutes(totalMinutes);
+                detailBox.innerText = `${year}年${month}月${day}日の勉強時間: ${timeString}`;
+            } else {
+                detailBox.innerText = `${year}年${month}月${day}日の勉強記録はありません`;
+            }
         }
 
         function adjustMinutes(amount) {
@@ -1192,13 +1530,11 @@
             document.getElementById('timer-text').innerText = formatTime(totalSeconds);
         }
 
-        // ⏱️ カウントダウンを挟むための準備関数
         function preStartTimer(mode, arg = null) {
             currentMode = mode;
             isPaused = false;
             elapsedSecondsInSession = 0;
 
-            // 各種タイマーの初期化設定
             if (mode === 'class') {
                 totalSeconds = arg * 60;
                 document.getElementById('timer-status').innerText = '授業記録';
@@ -1221,18 +1557,16 @@
                 document.getElementById('pomo-cycle').style.display = 'none';
             }
 
-            // タイマー画面に切り替え、数字表記をセット
             updateDisplay();
             changeScreen('screen-timer');
 
-            // カウントダウン中のUI制御
             const countdownEl = document.getElementById('countdown-display');
             const timerBox = document.getElementById('timer-box');
             const controlsBox = document.getElementById('timer-controls-container');
 
-            timerBox.style.display = 'none';       // タイマー本体を隠す
-            controlsBox.style.display = 'none';    // 操作パネルを一時的に隠す
-            countdownEl.style.display = 'block';   // カウントダウン表示を出す
+            timerBox.style.display = 'none';       
+            controlsBox.style.display = 'none';    
+            countdownEl.style.display = 'block';   
 
             let count = 3;
             countdownEl.innerText = count;
@@ -1247,19 +1581,15 @@
                 } else if (count === 0) {
                     countdownEl.innerText = "START!";
                 } else {
-                    // カウントダウン終了時の処理
                     clearInterval(countdownInterval);
                     countdownEl.style.display = 'none';
                     timerBox.style.display = 'flex';
                     controlsBox.style.display = 'flex';
-
-                    // 実際の計測スタート
                     startActualTimer();
                 }
             }, 1000);
         }
 
-        // 実際のタイマー刻み処理
         function startActualTimer() {
             if (currentMode.startsWith('pomodoro')) {
                 runPomodoroTimer();
